@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import crypto from "crypto";
+import { getToken } from "@/components/auth/getToken";
 
 // v1 Neto API OAuth
 
@@ -110,12 +111,11 @@ async function getProductTotal(clientID: string, data: oauthPayload) {
   return totalProducts;
 }
 
-export async function POST(
-  request: NextRequest,
-  code: String,
-  grantType: String,
-  netoEnvironment: String
-) {
+export async function POST(request: NextRequest) {
+
+  const body = await request.json();
+  const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
+
   console.log(`POST REQUEST RECEIVED`);
   console.log(`request method: ${request.method}`);
   // const requestURL=`${tokenURL}&client_id=${CLIENT_ID}&client_secret=${SECRET}&redirect_uri=${localRedirectURL}&grant_type=authorization_code&code=${code}`
@@ -139,7 +139,7 @@ export async function POST(
     CLIENT_SECRET = `${process.env.PROD_V1_CLIENT_SECRET}`;
   }
 
-  if (request.method === "GET") {
+  if (grantType) {
     console.log(`TOKEN REQUEST`);
     
     const params = new URLSearchParams();
@@ -210,17 +210,15 @@ export async function POST(
     // request.method === POST
     console.log(`UNINSTALL REQUEST`);
 
-    try {
       // Process the webhook payload
-      const text = await request.json();
-      if (text) {
+      if (api_id) {
         console.log(`UNINSTALL TEXT:`);
-        console.log(text);
+        console.log(request);
 
-        console.log(`Uninstall Code: ${text.code}`);
-        console.log(`Client: ${text.client_id}`);
-        console.log(`Store: ${text.store_id}`);
-        console.log(`Hash: ${text.api_id}`);
+        console.log(`Uninstall Code: ${code}`);
+        console.log(`Client: ${client_id}`);
+        console.log(`Store: ${store_id}`);
+        console.log(`Hash: ${api_id}`);
 
         const headersList = await headers();
         console.log(`headers:`);
@@ -230,14 +228,14 @@ export async function POST(
 
         // confirm uninstall request, POST deauth code to Neto Token endpoint
 
-        if (text.client_id === CLIENT_ID) {
+        if (client_id === CLIENT_ID) {
           const params = new URLSearchParams();
 
           params.append("client_id", `${CLIENT_ID}`);
           params.append("client_secret", `${CLIENT_SECRET}`);
           params.append("redirect_uri", `${callbackURL}`);
           params.append("grant_type", `authorization_code`);
-          params.append("code", `${text.code}`);
+          params.append("code", `${code}`);
 
           console.log(`running deauth request...`);
 
@@ -259,7 +257,7 @@ export async function POST(
             console.log(`FETCH DEAUTH DATA:`);
             console.log(data);
 
-            return new NextResponse(`Uninstall successful: ${text.store_id}`, {
+            return new NextResponse(`Uninstall successful: ${store_id}`, {
               status: 200,
             });
           } catch (e) {
@@ -279,12 +277,6 @@ export async function POST(
           status: 400,
         });
       }
-    } catch (error) {
-      // issue receiving uninstall request
-      return new NextResponse(`Uninstall error: ${error}`, {
-        status: 400,
-      });
-    }
   }
 }
 
@@ -349,17 +341,20 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     } else {
-      const oauthRes = await POST(
-        request,
-        code,
-        "authorization_code",
-        netoEnvironment
+      const oauthRes = await getToken(
+        '/auth/callback/neto/v1',
+        {
+          'code': code,
+          'grantType': "authorization_code",
+          'netoEnvironment': netoEnvironment
+        }
       );
 
       console.log(`TOKEN RESPONSE`);
-      console.log(oauthRes);
+      console.log(oauthRes.status);
 
-      if (oauthRes?.status === 201) {
+      if (oauthRes.status === 201) {
+        // could also store OAuth response and redirect to account page
         console.log(`oauth complete`);
         return NextResponse.json({ OAuthResponse }, { status: 201 });
       } else {
