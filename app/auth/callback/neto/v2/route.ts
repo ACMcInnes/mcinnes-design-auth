@@ -325,7 +325,9 @@ export async function POST(request: NextRequest) {
 
       const headersList = await headers();
       console.log(`headers:`);
-      console.log(headersList);
+      for (const [key, value] of headersList.entries()) {
+        console.log(`${key}: ${value}`);
+      }
       const verification_key = headersList.get("neto_verification_key");
       console.log(`verification key: ${verification_key}`);
 
