@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
   ) {
     callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
   } else {
-    callbackURL = `https://auth.mcinnes.design/${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
+    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
   }
 
   if (netoEnvironment === "uat" || netoEnvironment === "staging") {
@@ -421,7 +421,7 @@ export async function GET(request: NextRequest) {
     callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment}`;
     // e.g: http://localhost:3000/auth/callback/neto/v2?environment=uat
   } else {
-    callbackURL = `https://auth.mcinnes.design/${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${netoEnvironment}`;
   }
 
   if (hasWebstore) {
