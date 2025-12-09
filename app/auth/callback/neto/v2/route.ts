@@ -172,8 +172,7 @@ async function getWebstoreProperties(netoAppURL: string, data: oauthPayload) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { code, grantType, netoEnvironment, client_id, store_id, api_id } =
-    body;
+  const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
 
   console.log(`POST REQUEST RECEIVED`);
   console.log(`request method: ${request.method}`);
@@ -185,9 +184,9 @@ export async function POST(request: NextRequest) {
     process.env.VERCEL_ENV === "development" ||
     process.env.NODE_ENV === "development"
   ) {
-    callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
   } else {
-    callbackURL = `https://mcinnes-design-auth.vercel.app${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `https://auth.mcinnes.design/${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
   }
 
   if (netoEnvironment === "uat" || netoEnvironment === "staging") {
@@ -420,7 +419,7 @@ export async function GET(request: NextRequest) {
     callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment}`;
     // e.g: http://localhost:3000/auth/callback/neto/v2?environment=uat
   } else {
-    callbackURL = `https://mcinnes-design-auth.vercel.app${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `https://auth.mcinnes.design/${redirectURL}?environment=${netoEnvironment}`;
   }
 
   if (hasWebstore) {

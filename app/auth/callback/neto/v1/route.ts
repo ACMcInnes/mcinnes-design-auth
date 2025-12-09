@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
   if (process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development") {
     callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment}`;
   } else {
-    callbackURL = `https://mcinnes-design-auth.vercel.app${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `https://auth.mcinnes.design/${redirectURL}?environment=${netoEnvironment}`;
   }
 
   if (netoEnvironment === "uat" || netoEnvironment === "staging") {
@@ -319,7 +319,7 @@ export async function GET(request: NextRequest) {
     callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment}`;
     // e.g: http://localhost:3000//auth/callback/neto/v1?environment=uat
   } else {
-    callbackURL = `https://mcinnes-design-auth.vercel.app${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `https://auth.mcinnes.design/${redirectURL}?environment=${netoEnvironment}`;
   }
 
   if (hasWebstore) {

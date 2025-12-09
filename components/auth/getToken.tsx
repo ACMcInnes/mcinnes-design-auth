@@ -11,7 +11,7 @@ export async function getToken(url: string, params: authData) {
     fetchURL = `http://localhost:3000${url}`;
     // e.g: http://localhost:3000/auth/callback/neto/v2
   } else {
-    fetchURL = `https://mcinnes-design-auth.vercel.app${url}`;
+    fetchURL = `https://auth.mcinnes.design/${url}`;
   }
 
   const response = await fetch(fetchURL, {
