@@ -184,9 +184,13 @@ export async function POST(request: NextRequest) {
     process.env.VERCEL_ENV === "development" ||
     process.env.NODE_ENV === "development"
   ) {
-    callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
+    callbackURL = `http://localhost:3000${redirectURL}?environment=${
+      netoEnvironment ? netoEnvironment : "production"
+    }`;
   } else {
-    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${netoEnvironment ? netoEnvironment : 'production'}`;
+    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${
+      netoEnvironment ? netoEnvironment : "production"
+    }`;
   }
 
   if (netoEnvironment === "uat" || netoEnvironment === "staging") {
@@ -315,8 +319,11 @@ export async function POST(request: NextRequest) {
 
     // Process the webhook payload
     if (api_id) {
-      console.log(`UNINSTALL TEXT:`);
+      console.log(`UNINSTALL REQUEST:`);
       console.log(request);
+
+      console.log(`UNINSTALL REQUEST:`);
+      console.log(body);
 
       console.log(`Uninstall Code: ${code}`);
       console.log(`Client: ${client_id}`);
@@ -328,49 +335,67 @@ export async function POST(request: NextRequest) {
       for (const [key, value] of headersList.entries()) {
         console.log(`${key}: ${value}`);
       }
-      const verification_key = headersList.get("neto_verification_key");
-      console.log(`verification key: ${verification_key}`);
+      const verificationKey = headersList.get("neto_verification_key");
+      console.log(`verification key: ${verificationKey}`);
 
-      // confirm uninstall request, POST deauth code to Neto Token endpoint
+      const sharedKey = Buffer.from(CLIENT_SECRET).toString("base64");
+      const expectedVerification = crypto
+        .createHmac("sha256", sharedKey)
+        .update(JSON.stringify(body))
+        .digest("hex");
 
-      if (client_id === CLIENT_ID) {
-        const params = new URLSearchParams();
+      if (verificationKey === expectedVerification) {
+        // confirm uninstall request, POST deauth code to Neto Token endpoint
+        if (client_id === CLIENT_ID) {
+          const params = new URLSearchParams();
 
-        params.append("client_id", `${CLIENT_ID}`);
-        params.append("client_secret", `${CLIENT_SECRET}`);
-        params.append("redirect_uri", `${callbackURL}`);
-        params.append("grant_type", `authorization_code`);
-        params.append("code", `${code}`);
+          params.append("client_id", `${CLIENT_ID}`);
+          params.append("client_secret", `${CLIENT_SECRET}`);
+          params.append("redirect_uri", `${callbackURL}`);
+          params.append("grant_type", `authorization_code`);
+          params.append("code", `${code}`);
 
-        console.log(`running deauth request...`);
+          console.log(`running deauth request...`);
 
-        try {
-          const res = await fetch(`${netoAppURL}${tokenURL}`, {
-            method: "POST",
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-              "Access-Control-Allow-Headers": "Content-Type, Authorization",
-              //'Content-Type': 'multipart/form-data',
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: params,
-          });
+          // hits Internal Server Error on Neto
+          // think code or verification key are encoded, need to figure out how to decode
 
-          const data = await res.text();
-          console.log(`FETCH DEAUTH DATA:`);
-          console.log(data);
+          try {
+            const res = await fetch(`${netoAppURL}${tokenURL}`, {
+              method: "POST",
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods":
+                  "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                //'Content-Type': 'multipart/form-data',
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: params,
+            });
 
-          return new NextResponse(`Uninstall successful: ${store_id}`, {
-            status: 200,
-          });
-        } catch (e) {
-          console.log(e);
-          return NextResponse.json({ error: e }, { status: 500 });
+            const data = await res.text();
+            console.log(`FETCH DEAUTH DATA:`);
+            console.log(data);
+
+            return new NextResponse(`Uninstall successful: ${store_id}`, {
+              status: 200,
+            });
+          } catch (e) {
+            console.log(e);
+            return NextResponse.json({ error: e }, { status: 500 });
+          }
+        } else {
+          return new NextResponse(
+            `Uninstall error: Uninstall Client does not match application Client, or wrong Neto environment used.`,
+            {
+              status: 400,
+            }
+          );
         }
       } else {
         return new NextResponse(
-          `Uninstall error: Uninstall Client does not match application Client, or wrong Neto environment used.`,
+          `Uninstall error: Could not verify connection, please try again later.`,
           {
             status: 400,
           }
