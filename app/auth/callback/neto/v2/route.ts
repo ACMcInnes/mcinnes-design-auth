@@ -315,14 +315,14 @@ export async function POST(request: NextRequest) {
     }
   } else {
     // request.method === POST
-    console.log(`UNINSTALL REQUEST`);
+    console.log(`START UNINSTALL PROCESS...`);
 
     // Process the webhook payload
     if (api_id) {
-      console.log(`UNINSTALL REQUEST:`);
+      console.log(`## UNINSTALL FULL REQUEST:`);
       console.log(request);
 
-      console.log(`UNINSTALL REQUEST:`);
+      console.log(`## UNINSTALL BODY:`);
       console.log(body);
 
       console.log(`Uninstall Code: ${code}`);
@@ -331,12 +331,13 @@ export async function POST(request: NextRequest) {
       console.log(`Hash: ${api_id}`);
 
       const headersList = await headers();
-      console.log(`headers:`);
+      console.log(`## HEADERS:`);
       for (const [key, value] of headersList.entries()) {
         console.log(`${key}: ${value}`);
       }
       const verificationKey = headersList.get("neto_verification_key");
-      console.log(`verification key: ${verificationKey}`);
+      console.log(`## verification key:`);
+      console.log(verificationKey);
 
       const sharedKey = Buffer.from(CLIENT_SECRET).toString("base64");
       const expectedVerification = crypto
@@ -344,9 +345,19 @@ export async function POST(request: NextRequest) {
         .update(JSON.stringify(body))
         .digest("hex");
 
+      console.log(`## expected key:`);
+      console.log(expectedVerification);
+
       if (verificationKey === expectedVerification) {
-        // confirm uninstall request, POST deauth code to Neto Token endpoint
         if (client_id === CLIENT_ID) {
+          // uninstall verified, lets just return here for now
+          return new NextResponse(`Uninstall successful: ${store_id}`, {
+            status: 200,
+          });
+
+          // TODO: confirm uninstall request, POST deauth code to Neto Token endpoint
+          
+          /*
           const params = new URLSearchParams();
 
           params.append("client_id", `${CLIENT_ID}`);
@@ -385,6 +396,7 @@ export async function POST(request: NextRequest) {
             console.log(e);
             return NextResponse.json({ error: e }, { status: 500 });
           }
+            */
         } else {
           return new NextResponse(
             `Uninstall error: Uninstall Client does not match application Client, or wrong Neto environment used.`,
@@ -497,7 +509,7 @@ export async function GET(request: NextRequest) {
 
         console.log(`storing oauth details...`);
         if (tokenChunks) {
-          tokenChunks.forEach((tokenChunk, index) => {
+          for (const [index, tokenChunk] of tokenChunks.entries()) {
             console.log(`creating cookie: mc_design_auth.${index}`);
             if (
               process.env.VERCEL_ENV === "development" ||
@@ -527,7 +539,7 @@ export async function GET(request: NextRequest) {
             // console.log(cookieJar.get(`mc_design_auth.${index}`))
 
             console.log(`created cookie: mc_design_auth.${index}`);
-          });
+          }
         } else {
           console.log(`creating cookie: mc_design_auth`);
           if (
