@@ -1,8 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import crypto from "crypto";
 import { getToken } from "@/components/auth/getToken";
+import { oauthV1Payload, oauthResponse, webstoreResponse, userResponse } from "@/components/types/interfaces";
+import encodeJSON from "@/components/auth/encodeJSON";
+import bakeCookies from "@/components/auth/bakeCookies";
 
 // v1 Neto API OAuth
 
@@ -21,45 +24,9 @@ const API_ENDPOINT_V1 = "/do/WS/NetoAPI";
 
 const MAX_LIMIT = 10000;
 
-interface oauthPayload {
-  scope: string;
-  store_id: string;
-  store_domain: string;
-  store_name: number;
-  store_timezone: string;
-  access_token: string;
-  user: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  billing_address: {
-    street1: string;
-    street2: string;
-    city: string;
-    post_code: string;
-    state: string;
-    country_name: string;
-    country_code: string;
-  };
-}
-
-interface oauthResponse {
-  oauth: oauthPayload;
-  webstore: object;
-  activeProductTotal: string;
-}
-
-interface webstoreResponse {
-  domain: string;
-  business: string;
-  timezone: string;
-  country: string;
-}
-
 let OAuthResponse = {} as oauthResponse;
 
-async function getProductTotal(clientID: string, data: oauthPayload) {
+async function getProductTotal(clientID: string, data: oauthV1Payload) {
   let webstoreProducts;
 
   try {
@@ -179,12 +146,25 @@ export async function POST(request: NextRequest) {
         // run API call here to confirm connection
 
         let webstoreFormatted = {} as webstoreResponse;
-        webstoreFormatted.business = data.store_name;
+        webstoreFormatted.business_name = data.store_name;
         webstoreFormatted.domain = data.store_domain;
         webstoreFormatted.timezone = data.store_timezone;
         webstoreFormatted.country = data.billing_address.country_name;
 
         OAuthResponse.webstore = webstoreFormatted;
+
+
+        let userFormatted = {} as userResponse;
+        userFormatted.uid = data.store_id;
+        userFormatted.preferred_username = `${data.user.firstName} ${data.user.lastName}`;
+        userFormatted.email = data.user.email;
+
+        console.log(`   Checking user details...`);
+
+        OAuthResponse.user = userFormatted;
+
+        console.log(`   Storing user details...`);
+
 
         const productTotal = await getProductTotal(CLIENT_ID, data);
 
@@ -354,9 +334,18 @@ export async function GET(request: NextRequest) {
       console.log(oauthRes.status);
 
       if (oauthRes.status === 201) {
-        // could also store OAuth response and redirect to account page
-        console.log(`oauth complete`);
-        return NextResponse.json({ OAuthResponse }, { status: 201 });
+        const encodeAuthCookie = await encodeJSON(OAuthResponse);
+        
+        console.log(`   Encoding TOKEN:`);
+        console.log(encodeAuthCookie);
+
+        await bakeCookies('v1', encodeAuthCookie);
+
+        console.log(`## Redirecting to Account Page...`);
+        // return NextResponse.json({ OAuthResponse }, { status: 201 });
+        redirect("/account");
+
+        
       } else {
         console.log(`oauth error`);
         return NextResponse.json(

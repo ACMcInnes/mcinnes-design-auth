@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRightIcon } from "@heroicons/react/16/solid";
 
 export default function Footer() {
   return (
@@ -30,7 +31,11 @@ export default function Footer() {
             height={16}
             unoptimized
           />
-          Go to mcinnes.design -&gt;
+          Go to mcinnes.design
+          <ArrowRightIcon
+            aria-hidden="true"
+            className="size-4"
+          />
         </Link>
       </nav>
       <Image

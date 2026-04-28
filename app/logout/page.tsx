@@ -1,6 +1,6 @@
 import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
-import Link from "next/link";
+import Back from "@/components/shared/back";
 
 export default function Logout() {
   return (
@@ -14,14 +14,7 @@ export default function Logout() {
           <p className="text-base">
             You have been logged out of the McInnes Design application.
           </p>
-          <p className="mt-6 text-base">
-            <Link
-              href="/"
-              className="font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            >
-              {"<- Back to login"}
-            </Link>
-          </p>
+          <Back />
         </div>
       </main>
       <Footer />

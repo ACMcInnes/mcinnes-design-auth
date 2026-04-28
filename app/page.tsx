@@ -14,7 +14,7 @@ export default async function Home() {
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">McInnes Design AUTH</h1>
           <p className="text-base">
-            Hi {account.user.uid}, you are already authenticated with {' '}
+            Hi {account.user.preferred_username}, you are already authenticated with {' '}
             <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
               {account.webstore.domain}
             </strong>
@@ -46,6 +46,10 @@ export default async function Home() {
               Enter your{" "}
               <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
                 Webstore URL
+              </strong>
+              {" "}and{" "}
+              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+                API Version
               </strong>
               {" "}to get started.
             </li>

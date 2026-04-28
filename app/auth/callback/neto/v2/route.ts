@@ -7,6 +7,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 import encodeJSON from "@/components/auth/encodeJSON";
 import { getToken } from "@/components/auth/getToken";
+import { oauthV2Payload, oauthResponse, webstoreResponse, userResponse } from "@/components/types/interfaces";
 
 // v2 Neto API OAuth
 
@@ -23,37 +24,6 @@ const tokenURL = "/oauth/v2/token?version=2";
 const initialState = crypto.randomBytes(16).toString("hex");
 
 const API_ENDPOINT_V2 = "/v2/stores/";
-
-interface oauthPayload {
-  scope: string;
-  api_id: string;
-  id_token: string;
-  token_type: string;
-  expires_in: number;
-  access_token: string;
-  refresh_token: string;
-}
-
-interface oauthResponse {
-  oauth: oauthPayload;
-  webstore: webstoreResponse;
-  user: userResponse;
-  activeProductTotal: string;
-}
-
-interface webstoreResponse {
-  domain: string;
-  business_name: string;
-  timezone: string;
-  country: string;
-  hash: string;
-}
-
-interface userResponse {
-  uid: string;
-  preferred_username: string;
-  email: string;
-}
 
 let OAuthResponse = {} as oauthResponse;
 
@@ -86,8 +56,8 @@ async function setCookie(name: string, data: any) {
   console.log(cookieJar.get(name));
 }
 
-async function getWebstoreProducts(netoAppURL: string, data: oauthPayload) {
-  console.log(`FETCHING PRODUCT DATA`);
+async function getWebstoreProducts(netoAppURL: string, data: oauthV2Payload) {
+  console.log(`## FETCHING PRODUCT DATA`);
   let webstoreProductsResponse;
 
   try {
@@ -103,15 +73,15 @@ async function getWebstoreProducts(netoAppURL: string, data: oauthPayload) {
       }
     );
 
-    console.log(`GET WEBSTORE PRODUCT RESPONSE:`);
-    console.log(`${res.status} - ${res.statusText}`);
+    console.log(`   GET products:`);
+    console.log(`   ${res.status} - ${res.statusText}`);
 
     if (!res.ok || res.status !== 200) {
-      console.log(`issue with API call`);
+      console.log(`   !! issue with API call !!`);
       console.log(res);
 
       if (res.statusText === "Unauthorized") {
-        console.log(`user is not authorized to make this request`);
+        console.log(`   !! user is not authorized to make this request !!`);
       } else {
         // This will activate the closest `error.js` Error Boundary
         throw new Error(`Failed to fetch data: ${res.statusText}`);
@@ -128,8 +98,8 @@ async function getWebstoreProducts(netoAppURL: string, data: oauthPayload) {
   return webstoreProductsResponse;
 }
 
-async function getWebstoreProperties(netoAppURL: string, data: oauthPayload) {
-  console.log(`FETCHING PRODUCT DATA`);
+async function getWebstoreProperties(netoAppURL: string, data: oauthV2Payload) {
+  console.log(`## FETCHING WEBSTORE DATA`);
   let webstorePropertiesResponse;
 
   try {
@@ -145,15 +115,15 @@ async function getWebstoreProperties(netoAppURL: string, data: oauthPayload) {
       }
     );
 
-    console.log(`GET WEBSTORE PROPERTIES RESPONSE:`);
-    console.log(`${res.status} - ${res.statusText}`);
+    console.log(`   GET webstore:`);
+    console.log(`   ${res.status} - ${res.statusText}`);
 
     if (!res.ok || res.status !== 200) {
-      console.log(`issue with API call`);
+      console.log(`   !! issue with API call !!`);
       console.log(res);
 
       if (res.statusText === "Unauthorized") {
-        console.log(`user is not authorized to make this request`);
+        console.log(`   !! user is not authorized to make this request !!`);
       } else {
         // This will activate the closest `error.js` Error Boundary
         throw new Error(`Failed to fetch data: ${res.statusText}`);
@@ -174,11 +144,10 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
 
-  console.log(`POST REQUEST RECEIVED`);
-  console.log(`request method: ${request.method}`);
+  console.log(`## ${request.method} REQUEST RECEIVED`);
   // const requestURL=`${tokenURL}&client_id=${CLIENT_ID}&client_secret=${SECRET}&redirect_uri=${localRedirectURL}&grant_type=authorization_code&code=${code}`
-  console.log(`Node: ${process.env.NODE_ENV}`);
-  console.log(`Vercel: ${process.env.VERCEL_ENV}`);
+  console.log(`   Node: ${process.env.NODE_ENV}`);
+  console.log(`   Vercel: ${process.env.VERCEL_ENV}`);
 
   if (
     process.env.VERCEL_ENV === "development" ||
@@ -207,7 +176,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (grantType) {
-    console.log(`TOKEN REQUEST`);
+    console.log(`## TOKEN REQUEST`);
 
     const params = new URLSearchParams();
 
@@ -221,7 +190,7 @@ export async function POST(request: NextRequest) {
       params.append("refresh_token", `${code}`);
     }
 
-    console.log(`SWAPPING CODE FOR TOKEN`);
+    console.log(`   Swapping CODE for TOKEN`);
 
     try {
       const res = await fetch(`${netoAppURL}${tokenURL}`, {
@@ -243,6 +212,8 @@ export async function POST(request: NextRequest) {
       const accessToken = data.access_token;
       const idToken = data.id_token;
 
+      console.log(`   Checking for valid TOKEN`);
+
       const client = jwksClient({
         jwksUri: publicKeyURL,
       });
@@ -259,7 +230,7 @@ export async function POST(request: NextRequest) {
 
       idToken &&
         jwt.verify(idToken, signingKey, {}, function (err, decoded) {
-          console.log(`CHECKING ID JWT`);
+          console.log(`   Checking ID JWT...`);
           if (err) return NextResponse.json({ error: err }, { status: 500 });
 
           // console.log(decoded)
@@ -267,10 +238,10 @@ export async function POST(request: NextRequest) {
 
       accessToken &&
         jwt.verify(accessToken, signingKey, {}, function (err, decoded) {
-          console.log(`CHECKING ACCESS JWT`);
+          console.log(`   Checking Access JWT...`);
           if (err) return NextResponse.json({ error: err }, { status: 500 });
 
-          console.log(`ACCESS JWT LOOKS GOOD...`);
+          console.log(`   JWT is valid`);
 
           let jwtContents = decoded as JwtPayload;
           let userFormatted = {} as userResponse;
@@ -278,16 +249,16 @@ export async function POST(request: NextRequest) {
           userFormatted.preferred_username = jwtContents.preferred_username;
           userFormatted.email = jwtContents.email;
 
-          console.log(`FORMATTING USER DETAILS...`);
+          console.log(`   Checking user details...`);
 
           OAuthResponse.user = userFormatted;
 
-          console.log(`STORING USER DETAILS...`);
+          console.log(`   Storing user details...`);
         });
 
       // if we are here, we have a valid JWT and Access Token
       // run API call here to confirm connection
-      console.log(`VALID JWT`);
+      console.log(`   Valid JWT and Access Token`);
 
       const properties = await getWebstoreProperties(netoAppURL, data);
 
@@ -340,6 +311,10 @@ export async function POST(request: NextRequest) {
       console.log(verificationKey);
 
       const sharedKey = Buffer.from(CLIENT_SECRET).toString("base64");
+
+      console.log(`## shared key:`);
+      console.log(sharedKey);
+
       const expectedVerification = crypto
         .createHmac("sha256", sharedKey)
         .update(JSON.stringify(body))
@@ -356,7 +331,7 @@ export async function POST(request: NextRequest) {
           });
 
           // TODO: confirm uninstall request, POST deauth code to Neto Token endpoint
-          
+
           /*
           const params = new URLSearchParams();
 
@@ -406,6 +381,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } else {
+        console.warn(`## ERROR: Verification Key Mismatch!`)
         return new NextResponse(
           `Uninstall error: Could not verify connection, please try again later.`,
           {
@@ -433,6 +409,8 @@ export async function GET(request: NextRequest) {
   const hasCode = searchParams.has("code");
   const hasError = searchParams.has("error");
   const hasNetoEnvironment = searchParams.has("environment");
+
+  console.log(`## ${request.method} REQUEST RECEIVED`);
 
   if (hasNetoEnvironment) {
     netoEnvironment = searchParams.get("environment") ?? "production";
@@ -466,9 +444,10 @@ export async function GET(request: NextRequest) {
     // console.log(`store_domain: ${webstoreURL}`);
     // console.log(`NETO APP CODE URL`)
     // console.log(`${netoAppURL}${codeURL}&client_id=${CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code id_token&scope=openid&store_domain=${webstoreURL}&state=${initialState}`)
-    redirect(
-      `${netoAppURL}${codeURL}&client_id=${CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code id_token&scope=openid&store_domain=${webstoreURL}&state=${initialState}`
-    );
+    
+    console.log(`## CODE REQUEST`)
+    return NextResponse.redirect(new URL(`${netoAppURL}${codeURL}&client_id=${CLIENT_ID}&redirect_uri=${callbackURL}&response_type=code id_token&scope=openid&store_domain=${webstoreURL}&state=${initialState}`));
+
   } else if (hasCode) {
     const code = searchParams.get("code") ?? "";
     const state = searchParams.get("state") ?? "";
@@ -491,13 +470,13 @@ export async function GET(request: NextRequest) {
         netoEnvironment: netoEnvironment,
       });
 
-      console.log(`TOKEN RESPONSE`);
+      console.log(`## TOKEN RESPONSE`);
       console.log(oauthRes.status);
 
       if (oauthRes.status === 201) {
         const encodeAuthCookie = await encodeJSON(OAuthResponse);
 
-        console.log(`ENCODED:`);
+        console.log(`   Encoding TOKEN:`);
         console.log(encodeAuthCookie);
 
         const size = 3000; // maximum size of each chunk
@@ -507,15 +486,15 @@ export async function GET(request: NextRequest) {
         // refine this into a function call to reduce duplicate code
         const cookieJar = await cookies();
 
-        console.log(`storing oauth details...`);
+        console.log(`   Baking cookies...`);
         if (tokenChunks) {
           for (const [index, tokenChunk] of tokenChunks.entries()) {
-            console.log(`creating cookie: mc_design_auth.${index}`);
+            console.log(`   mc_design_auth.${index}`);
             if (
               process.env.VERCEL_ENV === "development" ||
               process.env.NODE_ENV === "development"
             ) {
-              console.log(`creating lax cookie`);
+              console.log(`      lax cookie`);
               cookieJar.set(`mc_design_auth.${index}`, tokenChunk, {
                 httpOnly: true,
                 sameSite: "lax",
@@ -523,7 +502,7 @@ export async function GET(request: NextRequest) {
                 path: "/",
               });
             } else {
-              console.log(`creating secure cookie`);
+              console.log(`      secure cookie`);
               cookieJar.set(`mc_design_auth.${index}`, tokenChunk, {
                 httpOnly: true,
                 sameSite: "strict",
@@ -531,22 +510,17 @@ export async function GET(request: NextRequest) {
                 path: "/",
               });
             }
-
-            console.log(`creating cookie: mc_design_auth.${index}`);
             console.log(
-              `cookie created: ${cookieJar.has(`mc_design_auth.${index}`)}`
+              `      baked: ${cookieJar.has(`mc_design_auth.${index}`)}`
             );
-            // console.log(cookieJar.get(`mc_design_auth.${index}`))
-
-            console.log(`created cookie: mc_design_auth.${index}`);
           }
         } else {
-          console.log(`creating cookie: mc_design_auth`);
+          console.log(`   mc_design_auth`);
           if (
             process.env.VERCEL_ENV === "development" ||
             process.env.NODE_ENV === "development"
           ) {
-            console.log(`creating lax cookie`);
+            console.log(`     lax cookie`);
             cookieJar.set(`mc_design_auth`, JSON.stringify(encodeAuthCookie), {
               httpOnly: true,
               sameSite: "lax",
@@ -554,7 +528,7 @@ export async function GET(request: NextRequest) {
               path: "/",
             });
           } else {
-            console.log(`creating secure cookie`);
+            console.log(`      secure cookie`);
             cookieJar.set(`mc_design_auth`, JSON.stringify(encodeAuthCookie), {
               httpOnly: true,
               sameSite: "strict",
@@ -562,19 +536,14 @@ export async function GET(request: NextRequest) {
               path: "/",
             });
           }
-
-          console.log(`creating cookie: mc_design_auth`);
-          console.log(`cookie created: ${cookieJar.has(`mc_design_auth}`)}`);
-          // console.log(cookieJar.get(`mc_design_auth`))
-
-          console.log(`created cookie: mc_design_auth`);
+          console.log(`      baked: ${cookieJar.has(`mc_design_auth}`)}`);
         }
 
-        console.log(`oauth complete, redirecting...`);
+        console.log(`## Redirecting to Account Page...`);
         // return NextResponse.json({ OAuthResponse }, { status: 201 });
         redirect("/account");
       } else {
-        console.log(`oauth error`);
+        console.log(`## OAuth error`);
         return NextResponse.json(
           { oauth: "error - oauth connection failed" },
           { status: 500 }
@@ -586,16 +555,16 @@ export async function GET(request: NextRequest) {
     const errorHint = searchParams.get("hint") ?? "";
     const errorMessage = searchParams.get("message") ?? "";
 
-    console.log(`oauth error:`);
-    console.log(`description: ${errorDesc}`);
-    console.log(`hint: ${errorHint}`);
-    console.log(`message: ${errorMessage}`);
+    console.log(`## OAuth error:`);
+    console.log(`   description: ${errorDesc}`);
+    console.log(`   hint: ${errorHint}`);
+    console.log(`   message: ${errorMessage}`);
     return NextResponse.json(
       { oauth: "error - oauth connection failed" },
       { status: 500 }
     );
   } else {
-    console.log(`oauth error`);
+    console.log(`## OAuth error`);
     return NextResponse.json(
       { oauth: "error - missing query parameter" },
       { status: 500 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDownIcon } from '@heroicons/react/16/solid'
 import { useActionState } from "react";
 import { redirect } from "next/navigation";
 import { getWebstore } from "@/components/login/action";
@@ -9,6 +10,7 @@ const initialState = {
   message: "",
   webstore: "",
   environment: "",
+  version: "",
 };
 
 export function LoginForm() {
@@ -16,7 +18,16 @@ export function LoginForm() {
 
   if (state?.webstore) {
     console.log(`webstore confirmed, authenticating...`);
-    redirect(`/auth/callback/neto/v2?store_domain=${state.webstore}&environment=${state.environment}`);
+    // redirect causes CORS issues from client
+    // redirect(`/auth/callback/neto/${state.version}?store_domain=${state.webstore}&environment=${state.environment}`);
+    window.location.assign(`/auth/callback/neto/${state.version}?store_domain=${state.webstore}&environment=${state.environment}`);
+
+    return (
+      <div className="max-w-xl lg:max-w-lg">
+        <p className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white animate-pulse">Loading...</p>
+        <p className="pt-2 animate-pulse">Our server gremlins are hard at work retrieving your account, I&apos;m sure they will be back with it shortly!</p>
+      </div>
+    );
   } else {
     return (
       <div className="max-w-xl lg:max-w-lg">
@@ -24,13 +35,32 @@ export function LoginForm() {
           <label htmlFor="webstore" className="sr-only">
             Webstore URL
           </label>
-          <input
-            id="webstore"
-            name="webstore"
-            type="text"
-            placeholder="https://domain.com.au"
-            className="min-w-0 flex-auto rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500"
-          />
+          <div className="min-w-0 flex-auto">
+            <div className="flex rounded-md bg-white outline-1 -outline-offset-1 outline-gray-300 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-600 dark:bg-white/5 dark:outline-white/10 dark:has-[input:focus-within]:outline-indigo-500">
+              <input
+                id="webstore"
+                name="webstore"
+                type="text"
+                placeholder="https://domain.com.au"
+                className="block min-w-0 grow px-3.5 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:bg-transparent dark:text-white dark:placeholder:text-gray-500"
+              />
+              <div className="grid shrink-0 grid-cols-1 focus-within:relative">
+                <select
+                  id="version"
+                  name="version"
+                  aria-label="API Version"
+                  className="col-start-1 row-start-1 w-full appearance-none rounded-md py-2 pr-7 pl-3.5 text-base text-gray-500 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-transparent dark:text-gray-400 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+                >
+                  <option>v1</option>
+                  <option>v2</option>
+                </select>
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400"
+                />
+              </div>
+            </div>
+          </div>
           <button
             type="submit"
             disabled={pending}
@@ -42,13 +72,13 @@ export function LoginForm() {
         </form>
         <p className="mt-2 text-sm/6 text-balance text-gray-600 dark:text-gray-400">
           <span className="align-top">*</span>
-          Authentication is currently only available via the Neto eCommerce Platform.
+          Authentication is currently available via the Neto eCommerce Platform.
         </p>
         <p className="mt-1 text-sm/6 text-gray-900 dark:text-gray-300">
           By submitting this form you accept our{' '}
           <Link
             href="/terms"
-            className="font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            className="font-semibold whitespace-nowrap text-indigo-600 hover:underline hover:underline-offset-4 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
           >
             terms &amp; conditions
           </Link>

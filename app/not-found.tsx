@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
+import { ArrowRightIcon } from "@heroicons/react/16/solid";
 
 export default function NotFound() {
   return (
@@ -22,8 +23,12 @@ export default function NotFound() {
             >
               Go back home
             </Link>
-            <Link href="//mcinnes.design/contact" target="_blank" className="text-sm font-semibold text-gray-900 dark:text-white">
-              Contact McInnes Design -&gt;
+            <Link href="//mcinnes.design/contact" target="_blank" className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+              Contact McInnes Design
+              <ArrowRightIcon
+                aria-hidden="true"
+                className="size-4"
+              />
             </Link>
           </div>
         </div>

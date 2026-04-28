@@ -5,19 +5,27 @@ import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
 import getCookie from "@/components/auth/getCookie";
 import { accountPayload } from "@/components/types/interfaces";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid";
+import Back from "@/components/shared/back";
 
 export default async function Account() {
 
   const account = await getCookie('mc_design_auth') as accountPayload
 
   if(Object.keys(account).length) {
+
+    const heading = `${account.webstore.business_name.charAt(0).toUpperCase()}${account.webstore.business_name.slice(1).replace(/(\.neto)?(\.maropost)?\.com(\.au)?\b/gi, '')}`
+
     return (
       <div className="font-sans grid grid-row-[20px_1fr_20px] items-center justify-items-center min-h-screen px-8 gap-16 sm:px-20">
         <Header />
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <div className="max-w-4xl">
             <h1 className="mx-auto text-center mt-2 mb-8 text-balance text-4xl font-semibold text-gray-900 dark:text-gray-100 sm:text-5xl">
-              Account
+              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-2 py-0.5 rounded">
+                {heading}
+              </strong>
+              {" "}Account
             </h1>
             <div>
               <div className="px-4 sm:px-0">
@@ -28,7 +36,7 @@ export default async function Account() {
                 <dl className="divide-y divide-gray-100 dark:divide-white/10">
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Name</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.user.uid === account.user.preferred_username ? account.user.uid : `${account.user.preferred_username} (${account.user.uid})`}</dd>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400 break-all">{account.user.uid === account.user.preferred_username ? account.user.uid : `${account.user.preferred_username} (${account.user.uid})`}</dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Email address</dt>
@@ -42,15 +50,26 @@ export default async function Account() {
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Webstore domain</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.domain}</dd>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">
+                      {account.webstore.domain}
+                      <Link
+                        href={`//${account.webstore.domain}`}
+                        target="_blank"
+                        className="ml-3 font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                      >
+                        <ArrowTopRightOnSquareIcon
+                          className="inline-block size-6"
+                        />
+                      </Link>
+                    </dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Webstore hash</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.hash}</dd>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.hash ?? '-'}</dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Location</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${account.webstore.country} - ${account.webstore.timezone}`}</dd>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.country ? `${account.webstore.country} - ${account.webstore.timezone}` : `${account.webstore.timezone}`}</dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Scopes</dt>
@@ -61,14 +80,7 @@ export default async function Account() {
                 </dl>
               </div>
             </div>
-            <p className="mt-6 text-base">
-              <Link
-                href="/"
-                className="font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-              >
-                {"<- Back"}
-              </Link>
-            </p>
+            <Back />
           </div>
         </main>
         <Footer />
@@ -100,6 +112,4 @@ export default async function Account() {
       </div>
     );
   }
-
-
 }

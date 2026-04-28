@@ -1,6 +1,6 @@
-import Link from "next/link";
 import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
+import Back from "@/components/shared/back";
 
 export default function Terms() {
   return (
@@ -34,14 +34,7 @@ export default function Terms() {
             application. By navigating and/or visiting this application some usage
             data may be recorded.
           </p>
-          <p className="mt-6 text-base">
-            <Link
-              href="/"
-              className="font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            >
-              {"<- Back"}
-            </Link>
-          </p>
+          <Back />
         </div>
       </main>
       <Footer />
