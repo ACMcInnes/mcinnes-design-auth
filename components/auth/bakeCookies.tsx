@@ -18,20 +18,21 @@ export default async function bakeCookies(version: string, data: string) {
         process.env.VERCEL_ENV === "development" ||
         process.env.NODE_ENV === "development"
       ) {
-        console.log(`      lax cookie`);
+        console.log(`      dev cookie`);
         cookieJar.set(`mc_design_auth_${version}.${index}`, cookieChunk, {
-          httpOnly: true,
-          sameSite: "lax",
-          secure: false,
           path: "/",
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
         });
       } else {
-        console.log(`      secure cookie`);
+        console.log(`      production cookie`);
         cookieJar.set(`mc_design_auth_${version}.${index}`, cookieChunk, {
-          httpOnly: true,
-          sameSite: "strict",
-          secure: true,
+          domain: ".mcinnes.design",
           path: "/",
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
         });
       }
       console.log(
