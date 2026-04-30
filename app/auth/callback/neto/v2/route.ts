@@ -26,8 +26,6 @@ const initialState = crypto.randomBytes(16).toString("hex");
 
 const API_ENDPOINT_V2 = "/v2/stores/";
 
-let OAuthResponse = {} as oauthResponse;
-
 async function getWebstoreProducts(netoAppURL: string, data: oauthV2Payload) {
   console.log(`## FETCHING PRODUCT DATA`);
   let webstoreProductsResponse;
@@ -115,6 +113,8 @@ async function getWebstoreProperties(netoAppURL: string, data: oauthV2Payload) {
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
+
+  let OAuthResponse = {} as oauthResponse;
 
   console.log(`## ${request.method} REQUEST RECEIVED`);
   // const requestURL=`${tokenURL}&client_id=${CLIENT_ID}&client_secret=${SECRET}&redirect_uri=${localRedirectURL}&grant_type=authorization_code&code=${code}`
@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
         console.log(OAuthResponse);
       }
       return NextResponse.json(
-        { oauth: "success - oauth connection created" },
+        OAuthResponse,
         { status: 201 }
       );
     } catch (e) {
@@ -453,11 +453,13 @@ export async function GET(request: NextRequest) {
 
       if (oauthRes.status === 201) {
 
+        const oauth = await oauthRes.json();
+
         if (netoEnvironment === "uat" || netoEnvironment === "staging") {
-          console.log(OAuthResponse)
+          console.log(oauth)
         }
         
-        const encodeAuthCookie = await encodeJSON(OAuthResponse);
+        const encodeAuthCookie = await encodeJSON(oauth);
 
         console.log(`   Encoding TOKEN:`);
         console.log(encodeAuthCookie);

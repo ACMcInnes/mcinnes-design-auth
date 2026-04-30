@@ -24,8 +24,6 @@ const API_ENDPOINT_V1 = "/do/WS/NetoAPI";
 
 const MAX_LIMIT = 10000;
 
-let OAuthResponse = {} as oauthResponse;
-
 async function getProductTotal(clientID: string, data: oauthV1Payload) {
   let webstoreProducts;
 
@@ -83,6 +81,8 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
 
+  let OAuthResponse = {} as oauthResponse;
+
   console.log(`POST REQUEST RECEIVED`);
   console.log(`request method: ${request.method}`);
   // const requestURL=`${tokenURL}&client_id=${CLIENT_ID}&client_secret=${SECRET}&redirect_uri=${localRedirectURL}&grant_type=authorization_code&code=${code}`
@@ -137,8 +137,12 @@ export async function POST(request: NextRequest) {
       });
 
       const data = await res.json();
-      console.log(`OAUTH TOKEN RESPONSE:`);
-      console.log(data);
+
+      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+        console.log(`OAUTH TOKEN RESPONSE:`);
+        console.log(data);
+      }
+      
       OAuthResponse.oauth = data;
       const accessToken = data.access_token;
 
@@ -170,11 +174,13 @@ export async function POST(request: NextRequest) {
 
         OAuthResponse.activeProductTotal = productTotal;
 
-        console.log(`OAUTH RESPONSE:`);
-        console.log(OAuthResponse);
+        if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+          console.log(`OAUTH RESPONSE:`);
+          console.log(OAuthResponse);
+        }
 
         return NextResponse.json(
-          { oauth: "success - oauth connection created" },
+          OAuthResponse,
           { status: 201 }
         );
       } else {
@@ -334,7 +340,10 @@ export async function GET(request: NextRequest) {
       console.log(oauthRes.status);
 
       if (oauthRes.status === 201) {
-        const encodeAuthCookie = await encodeJSON(OAuthResponse);
+
+        const oauth = await oauthRes.json();
+
+        const encodeAuthCookie = await encodeJSON(oauth);
         
         console.log(`   Encoding TOKEN:`);
         console.log(encodeAuthCookie);
