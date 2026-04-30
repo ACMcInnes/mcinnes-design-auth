@@ -14,6 +14,9 @@ export async function getToken(url: string, params: authData) {
     fetchURL = `https://auth.mcinnes.design${url}`;
   }
 
+  console.log(`## GET TOKEN`)
+  console.log(fetchURL)
+
   const response = await fetch(fetchURL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

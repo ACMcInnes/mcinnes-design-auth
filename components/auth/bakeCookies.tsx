@@ -10,8 +10,8 @@ export default async function bakeCookies(version: string, data: string) {
   const cookieJar = await cookies();
 
   console.log(`   Baking cookies...`);
-  console.log(cookieChunks)
-  if (cookieChunks) {
+
+  if (cookieChunks && cookieChunks.length) {
     for (const [index, cookieChunk] of cookieChunks.entries()) {
       console.log(`   mc_design_auth_${version}.${index}`);
       if (

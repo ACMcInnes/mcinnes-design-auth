@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { headers, cookies } from "next/headers";
+import { headers } from "next/headers";
 import crypto from "crypto";
 
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -8,6 +8,7 @@ import jwksClient from "jwks-rsa";
 import encodeJSON from "@/components/auth/encodeJSON";
 import { getToken } from "@/components/auth/getToken";
 import { oauthV2Payload, oauthResponse, webstoreResponse, userResponse } from "@/components/types/interfaces";
+import bakeCookies from "@/components/auth/bakeCookies";
 
 // v2 Neto API OAuth
 
@@ -26,35 +27,6 @@ const initialState = crypto.randomBytes(16).toString("hex");
 const API_ENDPOINT_V2 = "/v2/stores/";
 
 let OAuthResponse = {} as oauthResponse;
-
-async function setCookie(name: string, data: any) {
-  const cookieJar = await cookies();
-  console.log(`creating cookie: ${name}`);
-  if (
-    process.env.VERCEL_ENV === "development" ||
-    process.env.NODE_ENV === "development"
-  ) {
-    console.log(`creating lax cookie`);
-    cookieJar.set(name, data, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-    });
-  } else {
-    console.log(`creating secure cookie`);
-    cookieJar.set(name, data, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: true,
-      path: "/",
-    });
-  }
-
-  console.log(`creating cookie: ${name}`);
-  console.log(`cookie created: ${cookieJar.has(name)}`);
-  console.log(cookieJar.get(name));
-}
 
 async function getWebstoreProducts(netoAppURL: string, data: oauthV2Payload) {
   console.log(`## FETCHING PRODUCT DATA`);
@@ -176,7 +148,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (grantType) {
-    console.log(`## TOKEN REQUEST`);
+    console.log(`## GENERATING TOKEN`);
 
     const params = new URLSearchParams();
 
@@ -260,7 +232,10 @@ export async function POST(request: NextRequest) {
       // run API call here to confirm connection
       console.log(`   Valid JWT and Access Token`);
 
-      const properties = await getWebstoreProperties(netoAppURL, data);
+      const [properties, products] = await Promise.all([
+        getWebstoreProperties(netoAppURL, data),
+        getWebstoreProducts(netoAppURL, data),
+      ]);
 
       let webstoreFormatted = {} as webstoreResponse;
       webstoreFormatted.business_name = properties.result.business_name;
@@ -270,8 +245,6 @@ export async function POST(request: NextRequest) {
       webstoreFormatted.hash = data.api_id;
 
       OAuthResponse.webstore = webstoreFormatted;
-
-      const products = await getWebstoreProducts(netoAppURL, data);
 
       OAuthResponse.activeProductTotal = products.result_info.total_count;
 
@@ -474,70 +447,17 @@ export async function GET(request: NextRequest) {
       console.log(oauthRes.status);
 
       if (oauthRes.status === 201) {
+
+        if(netoEnvironment === "uat") {
+          console.log(OAuthResponse)
+        }
+        
         const encodeAuthCookie = await encodeJSON(OAuthResponse);
 
         console.log(`   Encoding TOKEN:`);
         console.log(encodeAuthCookie);
 
-        const size = 3000; // maximum size of each chunk
-        const regex = new RegExp(".{1," + size + "}", "g");
-        const tokenChunks = encodeAuthCookie.match(regex);
-
-        // refine this into a function call to reduce duplicate code
-        const cookieJar = await cookies();
-
-        console.log(`   Baking cookies...`);
-        if (tokenChunks) {
-          for (const [index, tokenChunk] of tokenChunks.entries()) {
-            console.log(`   mc_design_auth.${index}`);
-            if (
-              process.env.VERCEL_ENV === "development" ||
-              process.env.NODE_ENV === "development"
-            ) {
-              console.log(`      lax cookie`);
-              cookieJar.set(`mc_design_auth.${index}`, tokenChunk, {
-                httpOnly: true,
-                sameSite: "lax",
-                secure: false,
-                path: "/",
-              });
-            } else {
-              console.log(`      secure cookie`);
-              cookieJar.set(`mc_design_auth.${index}`, tokenChunk, {
-                httpOnly: true,
-                sameSite: "strict",
-                secure: true,
-                path: "/",
-              });
-            }
-            console.log(
-              `      baked: ${cookieJar.has(`mc_design_auth.${index}`)}`
-            );
-          }
-        } else {
-          console.log(`   mc_design_auth`);
-          if (
-            process.env.VERCEL_ENV === "development" ||
-            process.env.NODE_ENV === "development"
-          ) {
-            console.log(`     lax cookie`);
-            cookieJar.set(`mc_design_auth`, JSON.stringify(encodeAuthCookie), {
-              httpOnly: true,
-              sameSite: "lax",
-              secure: false,
-              path: "/",
-            });
-          } else {
-            console.log(`      secure cookie`);
-            cookieJar.set(`mc_design_auth`, JSON.stringify(encodeAuthCookie), {
-              httpOnly: true,
-              sameSite: "strict",
-              secure: true,
-              path: "/",
-            });
-          }
-          console.log(`      baked: ${cookieJar.has(`mc_design_auth}`)}`);
-        }
+        await bakeCookies('v2', encodeAuthCookie);
 
         console.log(`## Redirecting to Account Page...`);
         // return NextResponse.json({ OAuthResponse }, { status: 201 });

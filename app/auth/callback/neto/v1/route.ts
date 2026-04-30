@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { headers, cookies } from "next/headers";
+import { headers } from "next/headers";
 import crypto from "crypto";
 import { getToken } from "@/components/auth/getToken";
 import { oauthV1Payload, oauthResponse, webstoreResponse, userResponse } from "@/components/types/interfaces";
