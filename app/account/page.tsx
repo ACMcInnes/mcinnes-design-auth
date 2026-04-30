@@ -12,6 +12,10 @@ export default async function Account() {
 
   const account = await getCookie('mc_design_auth') as accountPayload
 
+  console.log(`## ACCOUNT`)
+  console.log(`length: ${Object.keys(account).length}`)
+  console.log(account)
+
   if(Object.keys(account).length) {
 
     const heading = `${account.webstore.business_name.charAt(0).toUpperCase()}${account.webstore.business_name.slice(1).replace(/(\.neto)?(\.maropost)?\.com(\.au)?\b/gi, '')}`
