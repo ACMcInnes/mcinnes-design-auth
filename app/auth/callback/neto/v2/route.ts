@@ -178,8 +178,11 @@ export async function POST(request: NextRequest) {
       });
 
       const data = await res.json();
-      // console.log(`OAUTH TOKEN RESPONSE:`);
-      // console.log(data);
+      
+      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+        console.log(`OAUTH TOKEN RESPONSE:`);
+        console.log(data);
+      }
       OAuthResponse.oauth = data;
       const accessToken = data.access_token;
       const idToken = data.id_token;
@@ -248,8 +251,10 @@ export async function POST(request: NextRequest) {
 
       OAuthResponse.activeProductTotal = products.result_info.total_count;
 
-      // console.log(`OAUTH RESPONSE:`);
-      // console.log(OAuthResponse);
+      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+        console.log(`OAUTH DATA:`);
+        console.log(OAuthResponse);
+      }
       return NextResponse.json(
         { oauth: "success - oauth connection created" },
         { status: 201 }
@@ -448,7 +453,7 @@ export async function GET(request: NextRequest) {
 
       if (oauthRes.status === 201) {
 
-        if(netoEnvironment === "uat") {
+        if (netoEnvironment === "uat" || netoEnvironment === "staging") {
           console.log(OAuthResponse)
         }
         
