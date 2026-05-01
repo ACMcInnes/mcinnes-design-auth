@@ -1,5 +1,6 @@
 // Neto v1 OAuth Token Response
 export interface oauthV1Payload {
+  version: 1;
   scope: string;
   store_id: string;
   store_domain: string;
@@ -24,6 +25,7 @@ export interface oauthV1Payload {
 
 // Neto v2 OAuth Token Response
 export interface oauthV2Payload {
+  version: 2;
   scope: string;
   api_id: string;
   id_token: string;
@@ -31,6 +33,7 @@ export interface oauthV2Payload {
   expires_in: number;
   access_token: string;
   refresh_token: string;
+  refresh_expires_in: number;
 }
 
 // Account Cookie 

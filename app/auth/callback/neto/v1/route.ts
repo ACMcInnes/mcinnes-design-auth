@@ -138,11 +138,13 @@ export async function POST(request: NextRequest) {
 
       const data = await res.json();
 
+      data.version = 1;
+
       if (netoEnvironment === "uat" || netoEnvironment === "staging") {
         console.log(`OAUTH TOKEN RESPONSE:`);
         console.log(data);
       }
-      
+
       OAuthResponse.oauth = data;
       const accessToken = data.access_token;
 

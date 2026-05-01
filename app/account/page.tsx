@@ -12,21 +12,27 @@ export default async function Account() {
 
   const account = await getCookie('mc_design_auth') as accountPayload
 
-  console.log(`## ACCOUNT`)
-  console.log(`length: ${Object.keys(account).length}`)
-  console.log(account)
-
   if(Object.keys(account).length) {
 
     const heading = `${account.webstore.business_name.charAt(0).toUpperCase()}${account.webstore.business_name.slice(1).replace(/(\.neto)?(\.maropost)?\.com(\.au)?\b/gi, '')}`
+    let tokenExpiry
+    let refreshExpiry
+
+    if(account.oauth.version === 2) {
+      tokenExpiry = new Date(account.oauth.expires_in);
+      refreshExpiry = new Date(account.oauth.refresh_expires_in);
+    } else {
+      tokenExpiry = '-';
+      refreshExpiry = '-';     
+    }
 
     return (
       <div className="font-sans grid grid-row-[20px_1fr_20px] items-center justify-items-center min-h-screen px-8 gap-16 sm:px-20">
         <Header />
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <div className="max-w-4xl">
-            <h1 className="mx-auto text-center mt-2 mb-8 text-balance text-4xl font-semibold text-gray-900 dark:text-gray-100 sm:text-5xl">
-              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-2 py-0.5 rounded">
+            <h1 className="mx-auto text-center mt-2 mb-8 max-w-xs sm:max-w-md md:max-w-xl lg:max-w-3xl text-balance text-4xl font-semibold text-gray-900 dark:text-gray-100 sm:text-5xl">
+              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-2 py-0.5 rounded wrap-break-word">
                 {heading}
               </strong>
               {" "}Account
@@ -68,12 +74,23 @@ export default async function Account() {
                     </dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Webstore hash</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.hash ?? '-'}</dd>
-                  </div>
-                  <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Location</dt>
                     <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.country ? `${account.webstore.country} - ${account.webstore.timezone}` : `${account.webstore.timezone}`}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div className="pt-12">
+              <div className="px-4 sm:px-0">
+                <h3 className="text-base/7 font-semibold text-gray-900 dark:text-white">Developer Access</h3>
+                <p className="mt-1 max-w-2xl text-sm/6 text-gray-500 dark:text-gray-400">The nitty gritty stuff</p>
+              </div>
+              <div className="mt-6 border-t border-gray-100 dark:border-white/10">
+                <dl className="divide-y divide-gray-100 dark:divide-white/10">
+                  <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">Webstore hash</dt>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{account.webstore.hash ?? '-'}</dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Scopes</dt>
@@ -81,9 +98,18 @@ export default async function Account() {
                       {account.oauth.scope}
                     </dd>
                   </div>
+                  <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Token Expiry</dt>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${tokenExpiry}`}</dd>
+                  </div>
+                  <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Refresh Token Expiry</dt>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${refreshExpiry}`}</dd>
+                  </div>
                 </dl>
               </div>
             </div>
+
             <Back />
           </div>
         </main>

@@ -178,6 +178,14 @@ export async function POST(request: NextRequest) {
       });
 
       const data = await res.json();
+
+      // convert token expiry to timestamp to be able to compare it later
+      const expiresInTimestamp = Date.now() + (data.expires_in * 1000);
+      data.expires_in = expiresInTimestamp;
+      data.version = 2;
+
+      const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+      data.refresh_expires_in = new Date().setDate(new Date().getDate() + daysInMonth);
       
       if (netoEnvironment === "uat" || netoEnvironment === "staging") {
         console.log(`OAUTH TOKEN RESPONSE:`);
