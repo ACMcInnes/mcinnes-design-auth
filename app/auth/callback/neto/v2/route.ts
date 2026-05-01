@@ -179,6 +179,11 @@ export async function POST(request: NextRequest) {
 
       const data = await res.json();
 
+      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+        console.log(`## TOKEN:`);
+        console.log(data);
+      }
+
       // convert token expiry to timestamp to be able to compare it later
       const expiresInTimestamp = Date.now() + (data.expires_in * 1000);
       data.expires_in = expiresInTimestamp;
@@ -187,10 +192,6 @@ export async function POST(request: NextRequest) {
       const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
       data.refresh_expires_in = new Date().setDate(new Date().getDate() + daysInMonth);
       
-      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
-        console.log(`OAUTH TOKEN RESPONSE:`);
-        console.log(data);
-      }
       OAuthResponse.oauth = data;
       const accessToken = data.access_token;
       const idToken = data.id_token;
@@ -260,7 +261,7 @@ export async function POST(request: NextRequest) {
       OAuthResponse.activeProductTotal = products.result_info.total_count;
 
       if (netoEnvironment === "uat" || netoEnvironment === "staging") {
-        console.log(`OAUTH DATA:`);
+        console.log(`## OAUTH DATA`);
         console.log(OAuthResponse);
       }
       return NextResponse.json(
@@ -474,7 +475,7 @@ export async function GET(request: NextRequest) {
 
         await bakeCookies('v2', encodeAuthCookie);
 
-        console.log(`## Redirecting to Account Page...`);
+        console.log(`## REDIRECTING TO ACCOUNT...`);
         // return NextResponse.json({ OAuthResponse }, { status: 201 });
         redirect("/account");
       } else {
