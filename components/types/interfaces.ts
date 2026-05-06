@@ -66,6 +66,6 @@ export interface accountPayload {
   user: userResponse;
   webstore: webstoreResponse;
   activeProductTotal: number;
-  iat: number;
-  exp: number;
+  iat?: number;
+  exp?: number;
 }

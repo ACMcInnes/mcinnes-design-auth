@@ -15,13 +15,24 @@ export default async function Account() {
   if(Object.keys(account).length) {
 
     const heading = `${account.webstore.business_name.charAt(0).toUpperCase()}${account.webstore.business_name.slice(1).replace(/(\.neto)?(\.maropost)?\.com(\.au)?\b/gi, '')}`
-    let tokenExpiry
-    let refreshExpiry
+    const currentTimestamp = Date.now();
+
+    let tokenExpiry: Date | string
+    let refreshExpiry: Date | string
+    let canRefresh: boolean
+    let minutesRemaining: number
+    let daysRemaining: number
 
     if(account.oauth.version === 2) {
+      canRefresh = currentTimestamp >= account.oauth.expires_in ? true : false;
+      minutesRemaining = Math.floor((account.oauth.expires_in - currentTimestamp) / 1000 / 60);
+      daysRemaining = Math.floor((account.oauth.refresh_expires_in - currentTimestamp) / 1000 / 60 / 60 / 24);
       tokenExpiry = new Date(account.oauth.expires_in);
       refreshExpiry = new Date(account.oauth.refresh_expires_in);
     } else {
+      canRefresh = false;
+      minutesRemaining = 0;
+      daysRemaining = 0;
       tokenExpiry = '-';
       refreshExpiry = '-';     
     }
@@ -100,11 +111,38 @@ export default async function Account() {
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Token Expiry</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${tokenExpiry}`}</dd>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${tokenExpiry} (${minutesRemaining >= 0 ? `~${minutesRemaining}` : '0'}mins)`}</dd>
                   </div>
                   <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Refresh Token Expiry</dt>
-                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${refreshExpiry}`}</dd>
+                    <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">{`${refreshExpiry} (${daysRemaining >= 0 ? `~${daysRemaining}` : '0'}days)`}</dd>
+                  </div>
+                  <div className="px-4 py-6 grid grid-cols-3 gap-4 sm:px-0">
+                    <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">API Access</dt>
+                    <dd className="mt-1 text-sm/6 text-gray-700 col-span-2 mt-0 dark:text-gray-400 text-right">
+                      {canRefresh ? (
+                        <>
+                          Expired
+                          <Link
+                            className="rounded-md bg-indigo-600 ml-5 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                            href="/auth/callback/neto/refresh"
+                          >
+                            Refresh
+                          </Link>
+                        </>
+
+                      ) : (
+                        <>
+                          Active
+                          <button
+                            className="rounded-md bg-indigo-600 ml-5 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:focus-visible:outline-indigo-500 opacity-50 cursor-not-allowed"
+                            disabled
+                          >
+                            Refresh
+                          </button>
+                        </>
+                      )}
+                    </dd>
                   </div>
                 </dl>
               </div>

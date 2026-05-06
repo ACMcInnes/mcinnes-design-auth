@@ -8,7 +8,15 @@ export default async function deleteCookie(name:string) {
 
   if(sortedCookieJar.length){
     sortedCookieJar.map((cookie) => {
-      cookieJar.delete(cookie.name)
+      if (
+        process.env.VERCEL_ENV === "development" ||
+        process.env.NODE_ENV === "development"
+      ) {
+        cookieJar.delete(cookie.name)
+      } else {
+        // have to pass all the cookie params as they were set in production?
+        cookieJar.delete({ name: cookie.name, domain: ".mcinnes.design", path: "/", httpOnly: true, secure: true, sameSite: "lax" });
+      } 
       // issue deleting cookie
       if(cookieJar.has(cookie.name)) return 0
     })
