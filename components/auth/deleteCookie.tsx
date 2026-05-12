@@ -15,7 +15,15 @@ export default async function deleteCookie(name:string) {
         cookieJar.delete(cookie.name)
       } else {
         // have to pass all the cookie params as they were set in production?
-        cookieJar.delete({ name: cookie.name, domain: ".mcinnes.design", path: "/", httpOnly: true, secure: true, sameSite: "lax" });
+        // cookieJar.delete({ name: cookie.name, domain: ".mcinnes.design", path: "/", httpOnly: true, secure: true, sameSite: "lax" });
+        cookieJar.set(cookie.name, '', {
+          domain: ".mcinnes.design",
+          path: "/",
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 0,
+        });
       } 
       // issue deleting cookie
       if(cookieJar.has(cookie.name)) return 0
