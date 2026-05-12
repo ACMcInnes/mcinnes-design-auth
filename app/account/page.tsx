@@ -60,7 +60,7 @@ export default async function Account() {
                     className="hover:underline hover:underline-offset-4 font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                     href="/terms"
                   >
-                    Terms &amp; Conditions
+                    terms &amp; conditions
                   </Link>
                   .
                 </p>
