@@ -3,6 +3,12 @@
 import { cookies } from 'next/headers'
  
 export default async function bakeCookies(version: string, data: string) {
+  const daysInMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0,
+  ).getDate();
+
   console.log(`   Mixing cookie batter...`);
   const size = 3000; // maximum size of each chunk
   const regex = new RegExp(".{1," + size + "}", "g");
@@ -33,6 +39,7 @@ export default async function bakeCookies(version: string, data: string) {
           httpOnly: true,
           secure: true,
           sameSite: "lax",
+          maxAge: daysInMonth * 24 * 60 * 60,
         });
       }
       console.log(

@@ -11,7 +11,7 @@ export default function Back() {
         aria-hidden="true"
         className="inline-block size-4"
       />
-      Back
+      Home
     </Link>
   );
 }

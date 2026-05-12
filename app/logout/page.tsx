@@ -12,7 +12,9 @@ export default function Logout() {
             Logout
           </h1>
           <p className="text-base">
-            You have been logged out of the McInnes Design application.
+            Your account has been removed from the McInnes Design application. 
+            If this was a mistake, you can re-authenticate with your platform to 
+            restore your connection. Note, some data may still be lost.
           </p>
           <Back />
         </div>

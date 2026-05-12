@@ -114,32 +114,39 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
 
+  let environmentFallback: string = "";
+  const searchParams = request.nextUrl.searchParams;
+  const hasEnvironmentFallback = searchParams.has("environment");
+
+  if (hasEnvironmentFallback) {
+    environmentFallback = searchParams.get("environment") ?? "production";
+  }
+
+  const environment = netoEnvironment ? netoEnvironment : environmentFallback;
+
   let OAuthResponse = {} as oauthResponse;
 
   console.log(`## ${request.method} REQUEST RECEIVED`);
   // const requestURL=`${tokenURL}&client_id=${CLIENT_ID}&client_secret=${SECRET}&redirect_uri=${localRedirectURL}&grant_type=authorization_code&code=${code}`
   console.log(`   Node: ${process.env.NODE_ENV}`);
   console.log(`   Vercel: ${process.env.VERCEL_ENV}`);
+  console.log(`   Neto: ${environment}`);
 
   if (
     process.env.VERCEL_ENV === "development" ||
     process.env.NODE_ENV === "development"
   ) {
-    callbackURL = `http://localhost:3000${redirectURL}?environment=${
-      netoEnvironment ? netoEnvironment : "production"
-    }`;
+    callbackURL = `http://localhost:3000${redirectURL}?environment=${environment}`;
   } else {
-    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${
-      netoEnvironment ? netoEnvironment : "production"
-    }`;
+    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${environment}`;
   }
 
-  if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+  if (environment === "uat" || environment === "staging") {
     // staging not supported at this time
-    netoAppURL = `https://api.${netoEnvironment}.netodev.com`;
+    netoAppURL = `https://api.${environment}.netodev.com`;
     CLIENT_ID = `${process.env.UAT_V2_CLIENT_ID}`;
     CLIENT_SECRET = `${process.env.UAT_V2_CLIENT_SECRET}`;
-    publicKeyURL = `https://api.${netoEnvironment}.netodev.com/.well-known/jwks.json`;
+    publicKeyURL = `https://api.${environment}.netodev.com/.well-known/jwks.json`;
   } else {
     netoAppURL = "https://api.netodev.com";
     CLIENT_ID = `${process.env.PROD_V2_CLIENT_ID}`;
@@ -179,7 +186,7 @@ export async function POST(request: NextRequest) {
 
       const data = await res.json();
 
-      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+      if (environment === "uat" || environment === "staging") {
         console.log(`## TOKEN:`);
         console.log(data);
       }
@@ -260,7 +267,7 @@ export async function POST(request: NextRequest) {
 
       OAuthResponse.activeProductTotal = products.result_info.total_count;
 
-      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+      if (environment === "uat" || environment === "staging") {
         console.log(`## OAUTH DATA`);
         console.log(OAuthResponse);
       }
@@ -298,9 +305,6 @@ export async function POST(request: NextRequest) {
       console.log(verificationKey);
 
       const sharedKey = Buffer.from(CLIENT_SECRET).toString("base64");
-
-      console.log(`## shared key:`);
-      console.log(sharedKey);
 
       const expectedVerification = crypto
         .createHmac("sha256", sharedKey)

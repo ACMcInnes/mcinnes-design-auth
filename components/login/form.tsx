@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ChevronDownIcon } from '@heroicons/react/16/solid'
 import { useActionState } from "react";
-import { redirect } from "next/navigation";
 import { getWebstore } from "@/components/login/action";
 
 const initialState = {
@@ -31,7 +30,7 @@ export function LoginForm() {
   } else {
     return (
       <div className="max-w-xl lg:max-w-lg">
-        <form action={formAction} className="mt-4 flex max-w-md gap-x-4">
+        <form action={formAction} className="mt-4 flex flex-wrap sm:flex-nowrap max-w-md gap-y-4 sm:gap-x-4 sm:gap-y-0">
           <label htmlFor="webstore" className="sr-only">
             Webstore URL
           </label>
@@ -64,13 +63,13 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={pending}
-            className="flex-none rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+            className="flex-auto sm:flex-none rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
           >
             Lets Go!
           </button>
 
         </form>
-        <p className="mt-2 text-sm/6 text-balance text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm/6 text-gray-600 dark:text-gray-400">
           <span className="align-top">*</span>
           Authentication is currently available via the Neto eCommerce Platform.
         </p>

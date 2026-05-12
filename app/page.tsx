@@ -27,9 +27,6 @@ export default async function Home() {
             >
               View Account
             </Link>
-            <Link href="/auth/callback/neto/uninstall" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-300 dark:hover:text-white">
-              Log out
-            </Link>
           </div>
         </main>
         <Footer />
@@ -41,7 +38,7 @@ export default async function Home() {
         <Header />
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">McInnes Design AUTH</h1>
-          <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
+          <ol className="font-mono text-balance list-inside list-decimal text-sm/6 text-center sm:text-left">
             <li className="mb-2 tracking-[-.01em]">
               Enter your{" "}
               <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">

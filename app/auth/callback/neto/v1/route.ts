@@ -81,6 +81,16 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { code, grantType, netoEnvironment, client_id, store_id, api_id } = body;
 
+  let environmentFallback: string = "";
+  const searchParams = request.nextUrl.searchParams;
+  const hasEnvironmentFallback = searchParams.has("environment");
+
+  if (hasEnvironmentFallback) {
+    environmentFallback = searchParams.get("environment") ?? "production";
+  }
+
+  const environment = netoEnvironment ? netoEnvironment : environmentFallback;
+
   let OAuthResponse = {} as oauthResponse;
 
   console.log(`POST REQUEST RECEIVED`);
@@ -88,16 +98,17 @@ export async function POST(request: NextRequest) {
   // const requestURL=`${tokenURL}&client_id=${CLIENT_ID}&client_secret=${SECRET}&redirect_uri=${localRedirectURL}&grant_type=authorization_code&code=${code}`
   console.log(`Node: ${process.env.NODE_ENV}`);
   console.log(`Vercel: ${process.env.VERCEL_ENV}`)
+  console.log(`Neto: ${environment}`);
 
   if (process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development") {
-    callbackURL = `http://localhost:3000${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `http://localhost:3000${redirectURL}?environment=${environment}`;
   } else {
-    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${netoEnvironment}`;
+    callbackURL = `https://auth.mcinnes.design${redirectURL}?environment=${environment}`;
   }
 
-  if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+  if (environment === "uat" || environment === "staging") {
     // staging not supported at this time
-    netoAppURL = `https://apps.${netoEnvironment}.getneto.com`;
+    netoAppURL = `https://apps.${environment}.getneto.com`;
     CLIENT_ID = `${process.env.UAT_V1_CLIENT_ID}`;
     CLIENT_SECRET = `${process.env.UAT_V1_CLIENT_SECRET}`;
   } else {
@@ -140,7 +151,7 @@ export async function POST(request: NextRequest) {
 
       data.version = 1;
 
-      if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+      if (environment === "uat" || environment === "staging") {
         console.log(`OAUTH TOKEN RESPONSE:`);
         console.log(data);
       }
@@ -176,7 +187,7 @@ export async function POST(request: NextRequest) {
 
         OAuthResponse.activeProductTotal = productTotal;
 
-        if (netoEnvironment === "uat" || netoEnvironment === "staging") {
+        if (environment === "uat" || environment === "staging") {
           console.log(`OAUTH RESPONSE:`);
           console.log(OAuthResponse);
         }
