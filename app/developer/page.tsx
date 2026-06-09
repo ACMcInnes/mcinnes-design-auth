@@ -1,11 +1,10 @@
 import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
 import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import getCookie from "@/components/auth/getCookie";
 import { LoginForm } from "@/components/login/form";
 import { accountPayload } from "@/components/types/interfaces";
-import { BetterAuthForm } from "@/components/betterauth/form";
-import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 
 export default async function Home() {
   const account = await getCookie('mc_design_auth') as accountPayload
@@ -40,11 +39,16 @@ export default async function Home() {
         <Header />
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">McInnes Design AUTH</h1>
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Developer Login</h2>
           <ol className="font-mono text-balance list-inside list-decimal text-sm/6 text-center sm:text-left">
             <li className="mb-2 tracking-[-.01em]">
               Enter your{" "}
               <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
                 Webstore URL
+              </strong>
+              {" "}and{" "}
+              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+                API Version
               </strong>
               {" "}to get started.
             </li>
@@ -56,17 +60,17 @@ export default async function Home() {
             </li>
           </ol>
 
-          <BetterAuthForm />
+          <LoginForm />
 
           <Link
             className="mt-6 flex items-center gap-2 group hover:underline hover:underline-offset-4 font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            href="/developer"
+            href="/"
           >
             <ArrowLeftIcon
               aria-hidden="true"
               className="inline-block size-4"
             />
-            Developer Login
+            Production Login
           </Link>
 
         </main>

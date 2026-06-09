@@ -1,30 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Authentication platform for McInnes Design applications. Includes bespoke OAuth flow for testing environments, while using Better Auth for live environments.
 
-## Getting Started
+## Commands
 
-First, run the development server:
+| Command                   | Action                                             |
+| :------------------------ | :------------------------------------------------- |
+| `pnpm install`            | Installs dependencies                              |
+| `pnpm dev`                | Starts local dev server at `localhost:3000`        |
+| `pnpm preview`            | Preview production build                           |
+| `pnpm build`              | Create a production build                          |
+| `vercel`                  | Run CLI commands for Vercel, e.g `vercel env pull` |
+
+### Configure Database
+
+To generate the ORM schema for Better Auth, run the following:
 
 ```bash
-pnpm dev
+pnpm dlx auth@latest generate
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `schema` folder at the root of the project and add the generated `auth-schema.ts` file into it. Then run:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dlx drizzle-kit generate
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+You should now have a `drizzle` folder with a database migration file. Run the following to apply the migration and load in the tables:
 
-## Learn More
+```bash
+pnpm dlx drizzle-kit migrate
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Learn More about the tech in this project
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js](https://nextjs.org/docs) Framework
+- [Vercel](https://vercel.com/home) Hosting
+- [Tailwind](https://tailwindcss.com/) CSS
+- [Better Auth](https://better-auth.com/) Authentication
+- [Drizzle](https://orm.drizzle.team/) ORM
+- [Neon](https://neon.com/) Database
