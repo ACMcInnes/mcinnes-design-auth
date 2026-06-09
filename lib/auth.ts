@@ -1,10 +1,19 @@
 import { betterAuth } from "better-auth/minimal";
 import { genericOAuth } from "better-auth/plugins"
+import { oAuthProxy } from "better-auth/plugins";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { db } from "./database"
 import * as schema from "../schema/auth-schema"
+import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || `https://${process.env.VERCEL_URL}` || `http://localhost:3000`,
+  trustedOrigins: [
+    `https://*vercel.app`,
+    `https://mcinnes.design`,
+    `http://localhost:3000`
+  ],
+  /*
   baseURL: {
 		allowedHosts: [
 			"localhost:3000",
@@ -13,6 +22,7 @@ export const auth = betterAuth({
 		],
 	},
   protocol: process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development" ? "http" : "https",
+  */
   database: drizzleAdapter(db, { 
     provider: "pg",
     schema: schema,
@@ -61,7 +71,11 @@ export const auth = betterAuth({
         },
         // Add more providers as needed
       ]
-    })
+    }),
+    oAuthProxy({
+      productionURL: process.env.BETTER_AUTH_URL,
+    }),
+    nextCookies()
   ]
   //... the rest of your config
 });
