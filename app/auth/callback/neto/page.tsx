@@ -65,7 +65,7 @@ const { data, error } = await authClient.signIn.oauth2({
         onError: (ctx: { error: { message: any; }; }) => {
             // display the error message
             console.log('ERROR')
-            alert(ctx.error.message);
+            throw new Error(ctx.error.message);
         },
 });
 
