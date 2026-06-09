@@ -4,6 +4,7 @@ import Link from "next/link";
 import getCookie from "@/components/auth/getCookie";
 import { LoginForm } from "@/components/login/form";
 import { accountPayload } from "@/components/types/interfaces";
+import { BetterAuthForm } from "@/components/betterauth/form";
 
 export default async function Home() {
   const account = await getCookie('mc_design_auth') as accountPayload
@@ -57,6 +58,10 @@ export default async function Home() {
               Review your connection with the McInnes Design application.
             </li>
           </ol>
+
+          <BetterAuthForm />
+
+          <h2>Legacy Login</h2>
 
           <LoginForm />
 
