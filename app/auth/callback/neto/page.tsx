@@ -18,9 +18,12 @@ export default async function AuthNeto(
 
   const webstore = searchParams.store_domain ?? "";
   console.log(`## WEBSTORE: ${webstore}`);
-
-  console.log(process.env.NEXT_PUBLIC_APP_URL)
-  console.log(process.env.BETTER_AUTH_URL)
+  console.log(`PUBLIC URL`)
+  console.log(process.env.NEXT_PUBLIC_VERCEL_URL)
+  console.log(`VERCEL ENV`)
+  console.log(process.env.NEXT_PUBLIC_VERCEL_ENV)
+  console.log(process.env.VERCEL_ENV)
+  console.log(`LOGGING`)
   console.log(process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development" ? "debug" : "warn")
 
   console.log(`---`)
