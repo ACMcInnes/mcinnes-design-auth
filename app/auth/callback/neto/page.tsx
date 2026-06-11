@@ -44,42 +44,35 @@ export default async function AuthNeto(
     // console.log(`RESPONSE DATA`)
     // console.log(response)
 
-
-
-// MOVE THIS OUT OF ROUTE AND INTO CLIENT COMPONENT SO COOKIES CAN BE SET!!!
-
-const { data, error } = await authClient.signIn.oauth2({
-        providerId: "neto",
-        callbackURL: `${process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://mcinnes.design"}/account`,
-        additionalData: { store_domain: webstore },
-    }, {
-        onRequest: (ctx: any) => {
+    await authClient.signIn.oauth2({
+      providerId: "neto",
+      callbackURL: `${process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://mcinnes.design"}/account`,
+      additionalData: { store_domain: webstore },
+      fetchOptions: {
+        onRequest: async (ctx) => {
             //show loading
-            console.log('LOADING')
+            console.log('## LOADING')
             //console.log(ctx)
         },
-        onSuccess: (ctx) => {
+        onSuccess: async(ctx) => {
             //redirect to the dashboard or sign in page
             console.log('## SUCCESS')
             if (ctx.data?.redirect && ctx.data?.url) {
               redirect(`${ctx.data.url}`);
             }
         },
-        onError: (ctx: { error: { message: any; }; }) => {
+        onError: async(ctx) => {
             // display the error message
-            console.log('ERROR')
-            throw new Error(ctx.error.message);
-        },
-});
+            console.log('## ERROR')
+            console.log(ctx)
+            throw new Error('Something broke');
+        },          
+      }
+    });
 
-console.log(`DATA`)
-console.log(data)
-console.log(`ERROR`)
-console.log(error)
-
-return (
-  <p>Loading...</p>
-);
+    return (
+      <p>Loading...</p>
+    );
 
   }
 }

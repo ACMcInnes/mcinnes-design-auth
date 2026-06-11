@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth/minimal";
-import { genericOAuth } from "better-auth/plugins"
+import { genericOAuth } from "better-auth/plugins";
 import { oAuthProxy } from "better-auth/plugins";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { db } from "./database"
-import * as schema from "../schema/auth-schema"
+import { db } from "./database";
+import * as schema from "../schema/auth-schema";
 import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
@@ -30,14 +30,11 @@ export const auth = betterAuth({
   advanced: {
     // doesn't create cookie in local
     cookiePrefix: "mcinnes-auth",
-    // skipStateCookieCheck: process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development",
     cookies: {
       state: {
         attributes: {
-          // Allows the cookie to be sent on cross-origin redirects
-          sameSite: process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development" ? "lax" : "none", 
-          // Set to false ONLY if your local server does not use HTTPS
-          secure: process.env.VERCEL_ENV === "development" || process.env.NODE_ENV === "development", 
+          sameSite: "none", 
+          secure: true, 
         }
       }
     }
@@ -55,10 +52,9 @@ export const auth = betterAuth({
           discoveryUrl: "https://api.netodev.com/.well-known/openid-configuration",
           authorizationUrl: "https://api.netodev.com/oauth/v2/auth",
           tokenUrl: "https://api.netodev.com/oauth/v2/token",
-          //scopes: ["id_token"],
           requireIssuerValidation: true,
           authorizationUrlParams: (ctx) => {
-            console.log(`CTX Query`)
+            console.log(`AUTH URL PARAMS`)
             // console.log(ctx)
 
             console.log(ctx.body.additionalData.store_domain)
@@ -66,14 +62,46 @@ export const auth = betterAuth({
               // Extract a dynamic value from incoming API query parameters
               store_domain: ctx.body.additionalData.store_domain || ""
             };
-          }
+          },
+          getUserInfo: async (tokens) => {
+            // Access provider-specific fields from raw token data
+            console.log(`TOKENS`)
+            console.log(tokens)
+           const userId = tokens.raw?.user_id as string;
+
+           /*
+                const url = `https://api.netodev.com/v2/stores/${tokens.api_id}/users?username=${tokens.username}`
+                const profile = await fetch(url, {
+                    headers: {
+                    Authorization: `Bearer ${tokens.access_token}`,
+                    "Content-Type": "application/json",
+                    },
+                }).then(async (res) => await res.json())
+            */
+
+                
+            const response = await fetch(
+              `https://provider.example.com/api/user?` +
+              `access_token=${tokens.accessToken}`
+            );
+            const data = await response.json();
+            
+            return {
+              id: userId,
+              name: data.display_name,
+              email: data.email,
+              image: data.avatar_url,
+              emailVerified: data.email_verified,
+            };
+          },
           // ... other config options
         },
         // Add more providers as needed
       ]
     }),
-    oAuthProxy({
-      productionURL: process.env.BETTER_AUTH_URL,
+    oAuthProxy({ 
+      productionURL: process.env.BETTER_AUTH_URL, 
+      secret: process.env.OAUTH_PROXY_SECRET, 
     }),
     nextCookies()
   ]

@@ -2,7 +2,6 @@ import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
 import Link from "next/link";
 import getCookie from "@/components/auth/getCookie";
-import { LoginForm } from "@/components/login/form";
 import { accountPayload } from "@/components/types/interfaces";
 import { BetterAuthForm } from "@/components/betterauth/form";
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
