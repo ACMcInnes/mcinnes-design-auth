@@ -481,7 +481,7 @@ export async function GET(request: NextRequest) {
 
         console.log(`## REDIRECTING TO ACCOUNT...`);
         // return NextResponse.json({ OAuthResponse }, { status: 201 });
-        redirect("/account");
+        redirect("/developer/account");
       } else {
         console.log(`## OAuth error`);
         return NextResponse.json(
