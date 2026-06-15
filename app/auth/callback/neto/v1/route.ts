@@ -365,7 +365,7 @@ export async function GET(request: NextRequest) {
 
         console.log(`## Redirecting to Account Page...`);
         // return NextResponse.json({ OAuthResponse }, { status: 201 });
-        redirect("/account");
+        redirect("/developer/account");
 
         
       } else {
