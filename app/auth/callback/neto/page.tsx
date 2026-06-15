@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
@@ -21,5 +21,9 @@ export default function AuthNeto() {
     });
   }, [searchParams]);
 
-  return <p>Redirecting to Neto…</p>;
+  return (
+    <Suspense fallback={<p>Checking…</p>}>
+      <p>Redirecting to Neto…</p>
+    </Suspense>
+  );
 }
