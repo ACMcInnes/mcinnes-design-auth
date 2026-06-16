@@ -4,7 +4,9 @@ import { genericOAuthClient } from "better-auth/client/plugins";
 export const authClient = createAuthClient({
   baseURL: process.env.BETTER_AUTH_URL,
   callbackURL: `/account`,
-  plugins: [genericOAuthClient()],
+  plugins: [
+    genericOAuthClient()
+  ],
   fetchOptions: {
     onError: async (context) => {
       const { response } = context;
