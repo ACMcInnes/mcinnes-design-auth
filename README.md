@@ -2,13 +2,14 @@ Authentication platform for McInnes Design applications. Includes bespoke OAuth 
 
 ## Commands
 
-| Command                   | Action                                             |
-| :------------------------ | :------------------------------------------------- |
-| `pnpm install`            | Installs dependencies                              |
-| `pnpm dev`                | Starts local dev server at `localhost:3000`        |
-| `pnpm preview`            | Preview production build                           |
-| `pnpm build`              | Create a production build                          |
-| `vercel`                  | Run CLI commands for Vercel, e.g `vercel env pull` |
+| Command                   | Action                                               |
+| :------------------------ | :--------------------------------------------------- |
+| `pnpm install`            | Installs dependencies                                |
+| `pnpm dev`                | Starts local dev server at `localhost:3000`          |
+| `pnpm preview`            | Preview production build                             |
+| `pnpm build`              | Create a production build                            |
+| `pnpm version <version>`  | Bump project version, e.g. `major`, `minor`, `patch` |
+| `vercel`                  | Run CLI commands for Vercel, e.g `vercel env pull`   |
 
 ### Configure Database
 
