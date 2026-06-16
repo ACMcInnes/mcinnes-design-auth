@@ -26,6 +26,10 @@ export const auth = betterAuth({
   }),
   advanced: {
     cookiePrefix: "mcinnes-auth",
+    crossSubDomainCookies: {
+      enabled: process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production",
+      domain: "mcinnes.design",
+    },
   },
   logger: {
     level:

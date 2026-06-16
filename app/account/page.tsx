@@ -21,17 +21,10 @@ export default function Account() {
   };
 
   const { 
-        data: session, 
-        isPending, //loading state
-        error, //error object
-        refetch //refetch the session
-    } = authClient.useSession() 
-
-  console.log(`ERROR`)
-  console.log(error)
-
-  console.log(`SESSION`)
-  console.log(session)
+    data: session, 
+    isPending,
+    error,
+  } = authClient.useSession() 
 
   if (isPending) {
     return (
