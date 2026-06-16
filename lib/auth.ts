@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth } from "better-auth/minimal";
 import { genericOAuth } from "better-auth/plugins";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { db } from "./database";
@@ -26,6 +26,10 @@ export const auth = betterAuth({
   }),
   advanced: {
     cookiePrefix: "mcinnes-auth",
+    crossSubDomainCookies: {
+      enabled: process.env.VERCEL_ENV === "production",
+      domain: "neto.mcinnes.design",
+    },
   },
   logger: {
     level:
@@ -52,32 +56,19 @@ export const auth = betterAuth({
             store_domain: ctx.body.additionalData.store_domain || "",
           }),
           getUserInfo: async (tokens) => {
-            console.log("TOKENS", tokens);
-
             const idToken = tokens.idToken;
             if (!idToken) {
               throw new Error("Missing id_token from Neto");
             }
 
-            // decode ONLY (no verification yet)
-            // const decoded = jwt.decode(idToken) as any;
-
             const publicKeyURL = `https://api.netodev.com/.well-known/jwks.json`;
-
             const client = jwksClient({
               jwksUri: publicKeyURL,
             });
 
-            // console.log(`CLIENT`)
-            // console.log(client)
-
             const kid = "public:app-portal@neto";
             const key = await client.getSigningKey(kid);
             const signingKey = key.getPublicKey();
-
-            // console.log(`PUBLIC KEY`)
-            // console.log(signingKey)
-
 
             const decoded = await new Promise<any>((resolve, reject) => {
               jwt.verify(
@@ -94,13 +85,9 @@ export const auth = betterAuth({
               );
             });
 
-            console.log("VERIFIED TOKEN", decoded);
-
-
             if (tokens.refreshToken && !tokens.refreshTokenExpiresAt) {
                 tokens.refreshTokenExpiresAt = calculateNetoRefreshExpiry();
             }
-
 
             return {
               id: decoded.sub || decoded.user_id,
@@ -109,9 +96,7 @@ export const auth = betterAuth({
               image: undefined,
               emailVerified: decoded.email_verified ?? false,
             };
-
           },
-
         },
       ],
     }),
