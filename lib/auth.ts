@@ -20,6 +20,10 @@ function calculateNetoRefreshExpiry(): Date {
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
+  trustedOrigins: [
+    "https://auth.mcinnes.design",
+    "https://neto.mcinnes.design",
+  ],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
@@ -30,12 +34,10 @@ export const auth = betterAuth({
       enabled: process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production",
       domain: "mcinnes.design",
     },
-    useSecureCookies: process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production",
+    defaultCookieAttributes: {
+      sameSite: "none",
+    },
   },
-  trustedOrigins: [
-    "https://auth.mcinnes.design",
-    "https://neto.mcinnes.design",
-  ],
   logger: {
     level:
       process.env.VERCEL_ENV === "development" ||
