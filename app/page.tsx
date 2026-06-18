@@ -12,16 +12,10 @@ export default function Home() {
 
   const { 
         data: session, 
-        isPending, //loading state
-        error, //error object
-        refetch //refetch the session
+        isPending,
+        error,
+        refetch
     } = authClient.useSession() 
-
-  console.log(`ERROR`)
-  console.log(error)
-
-  console.log(`SESSION`)
-  console.log(session)
 
   if (isPending) {
       return (

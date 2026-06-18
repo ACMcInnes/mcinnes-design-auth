@@ -30,6 +30,7 @@ export const auth = betterAuth({
       enabled: process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production",
       domain: "mcinnes.design",
     },
+    useSecureCookies: process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production",
   },
   trustedOrigins: [
     "https://auth.mcinnes.design",
