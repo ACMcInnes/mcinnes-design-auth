@@ -31,6 +31,10 @@ export const auth = betterAuth({
       domain: "mcinnes.design",
     },
   },
+  trustedOrigins: [
+    "https://auth.mcinnes.design",
+    "https://neto.mcinnes.design",
+  ],
   logger: {
     level:
       process.env.VERCEL_ENV === "development" ||

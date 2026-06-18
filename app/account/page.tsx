@@ -5,6 +5,7 @@ import Header from "@/components/shared/header";
 import Footer from "@/components/shared/footer";
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react'
 import Back from "@/components/shared/back";
 
 export default function Account() {
@@ -18,6 +19,17 @@ export default function Account() {
         },
       },
     });
+  };
+
+  const [isRefreshing, startTransition] = useTransition()
+  const checkAccessToken = async () => {
+    startTransition(async () => {
+      console.log(`TOKEN`)
+      const accessToken = await authClient.getAccessToken({
+        providerId: "neto", // or any other provider id
+      })
+      console.log(accessToken)
+    })
   };
 
   const { 
@@ -118,6 +130,23 @@ export default function Account() {
                   </dt>
                   <dd className="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 dark:text-gray-400">
                     {session.user.id}
+                  </dd>
+                </div>
+                <div className="px-4 py-6 grid grid-cols-3 gap-4 sm:px-0">
+                  <dt className="text-sm/6 font-medium text-gray-900 dark:text-gray-100">
+                    API Access
+                  </dt>
+                  <dd className="mt-1 text-sm/6 text-gray-700 col-span-2 mt-0 dark:text-gray-400 text-right">
+                    <>
+                      Active
+                      <button
+                        onClick={checkAccessToken}
+                        disabled={isRefreshing}
+                        className="rounded-md bg-indigo-600 ml-5 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
+                      >
+                        {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                      </button>
+                    </>
                   </dd>
                 </div>
               </dl>
