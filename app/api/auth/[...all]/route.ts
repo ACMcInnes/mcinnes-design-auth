@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
