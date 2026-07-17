@@ -28,6 +28,14 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  user: {
+    additionalFields: {
+      subject: {
+        type: "string",
+        required: true,
+      },
+    },
+  },
   advanced: {
     cookiePrefix: "mcinnes-auth",
     crossSubDomainCookies: {
@@ -102,6 +110,7 @@ export const auth = betterAuth({
               email: decoded.email || `${decoded.sub}@neto.local`,
               image: undefined,
               emailVerified: decoded.email_verified ?? false,
+              subject: decoded.sub,
             };
           },
         },
