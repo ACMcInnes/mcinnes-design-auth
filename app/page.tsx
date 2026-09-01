@@ -9,6 +9,8 @@ export default async function Home() {
   const referrerHeader = headersList.get('referer') ?? ''
   const referrer = referrerHeader.includes('mcinnes.design') ? referrerHeader : ''
 
+  console.log(`referrer: ${referrer}`)
+
   return (
     <div className="font-sans grid grid-row-[20px_1fr_20px] items-center justify-items-center min-h-screen px-8 gap-16 sm:px-20">
       <Header />
