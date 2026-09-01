@@ -15,6 +15,10 @@ function NetoSignIn() {
     const redirectParam = searchParams.get("redirect") ?? "";
     const redirect = decodeURIComponent(atob(redirectParam))
 
+    console.log(`redirect data:`)
+    console.log(redirectParam)
+    console.log(redirect)
+
     if (!webstore || startedRef.current) return;
 
     startedRef.current = true;

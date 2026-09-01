@@ -17,6 +17,7 @@ export function BetterAuthForm({ redirect }: {redirect: string}) {
 
   if (state?.webstore) {
     console.log(`webstore confirmed, authenticating...`);
+    console.log(`redirect: ${redirect}`)
     // redirect causes CORS issues from client
     // redirect(`/auth/callback/neto/${state.version}?store_domain=${state.webstore}&environment=${state.environment}`);
     window.location.assign(`/auth/callback/neto/?store_domain=${state.webstore}&redirect=${redirectParam}`);
