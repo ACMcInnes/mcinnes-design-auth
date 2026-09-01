@@ -5,7 +5,7 @@ import { BetterAuthForm } from "@/components/betterauth/form";
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { authClient } from "@/lib/auth-client";
 
-export default function CheckSession() {
+export default function CheckSession({ referrer }: {referrer: string}) {
 
   const { 
         data: session, 
@@ -41,7 +41,7 @@ export default function CheckSession() {
           </li>
         </ol>
 
-        <BetterAuthForm />
+        <BetterAuthForm redirect={referrer} />
 
         <Link
           className="mt-6 flex items-center gap-2 group hover:underline hover:underline-offset-4 font-semibold whitespace-nowrap text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"

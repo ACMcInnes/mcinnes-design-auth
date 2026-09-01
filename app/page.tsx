@@ -6,16 +6,15 @@ import { headers } from 'next/headers'
 export default async function Home() {
 
   const headersList = await headers()
-  const referrer = headersList.get('referer')
-
-  console.log(`referrer: ${referrer}`)
+  const referrerHeader = headersList.get('referer') ?? ''
+  const referrer = referrerHeader.includes('mcinnes.design') ? referrerHeader : ''
 
   return (
     <div className="font-sans grid grid-row-[20px_1fr_20px] items-center justify-items-center min-h-screen px-8 gap-16 sm:px-20">
       <Header />
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">McInnes Design AUTH</h1>
-        <CheckSession />
+        <CheckSession referrer={referrer} />
       </main>
       <Footer />
     </div>

@@ -11,14 +11,15 @@ const initialState = {
   environment: "",
 };
 
-export function BetterAuthForm() {
+export function BetterAuthForm({ redirect }: {redirect: string}) {
   const [state, formAction, pending] = useActionState(getWebstore, initialState);
+  const redirectParam = btoa(encodeURIComponent(redirect))
 
   if (state?.webstore) {
     console.log(`webstore confirmed, authenticating...`);
     // redirect causes CORS issues from client
     // redirect(`/auth/callback/neto/${state.version}?store_domain=${state.webstore}&environment=${state.environment}`);
-    window.location.assign(`/auth/callback/neto/?store_domain=${state.webstore}`);
+    window.location.assign(`/auth/callback/neto/?store_domain=${state.webstore}&redirect=${redirectParam}`);
 
     return (
       <div className="max-w-xl lg:max-w-lg">

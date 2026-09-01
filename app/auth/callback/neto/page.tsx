@@ -12,13 +12,16 @@ function NetoSignIn() {
 
   useEffect(() => {
     const webstore = searchParams.get("store_domain") ?? "";
+    const redirectParam = searchParams.get("redirect") ?? "";
+    const redirect = decodeURIComponent(atob(redirectParam))
+
     if (!webstore || startedRef.current) return;
 
     startedRef.current = true;
 
     void authClient.signIn.oauth2({
       providerId: "neto",
-      callbackURL: "/account",
+      callbackURL: redirect ? redirect : "/account",
       additionalData: { store_domain: webstore },
     });
   }, [searchParams]);
