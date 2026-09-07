@@ -105,9 +105,9 @@ export const auth = betterAuth({
             }
 
             return {
-              id: decoded.sub || decoded.user_id,
-              name: decoded.name || "Neto User",
-              email: decoded.email || `${decoded.sub}@neto.local`,
+              id: decoded.sub,
+              name: decoded.name,
+              email: decoded.email,
               image: undefined,
               emailVerified: decoded.email_verified ?? false,
               subject: decoded.sub,

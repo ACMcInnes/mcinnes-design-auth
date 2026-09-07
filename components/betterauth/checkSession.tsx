@@ -16,13 +16,35 @@ export default function CheckSession({ referrer }: {referrer: string}) {
 
   if (isPending) {
     return (
-      <p className="text-base">
-        Loading...
-      </p>
+      <div className="animate-pulse">
+        <div className="font-mono text-balance list-inside list-decimal text-sm/6 text-center sm:text-left">
+          <div className="mb-2 tracking-[-.01em]">
+            <strong className="bg-current font-mono font-semibold px-1 py-0.5 rounded">
+              1. Enter your Webstore URL to get started.
+            </strong>
+          </div>
+          <div className="mb-2 tracking-[-.01em]">
+            <strong className="bg-current font-mono font-semibold px-1 py-0.5 rounded">
+              2. Log in to your platform portal if prompted.
+            </strong>
+          </div>
+          <div className="mb-2 tracking-[-.01em]">
+            <strong className="bg-current font-mono font-semibold px-1 py-0.5 rounded">
+              3. Review your connection with the McInnes Design application.
+            </strong>
+          </div>
+        </div>
+        <div className="h-[200px] sm:h-[120px] mt-[42px] w-full rounded bg-current"></div>
+        <div className="h-[24px] mt-[32px] w-[148px] mx-auto sm:mx-0 rounded bg-current"></div>
+      </div>
     );  
   };
 
-  if (error || !session) {
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!session) {  
     return (
       <>
         <ol className="font-mono text-balance list-inside list-decimal text-sm/6 text-center sm:text-left">
