@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth/minimal";
-import { genericOAuth } from "better-auth/plugins";
+import { genericOAuth, oAuthProxy } from "better-auth/plugins";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { db } from "./database";
 import * as schema from "../schema/auth-schema";
@@ -23,6 +23,10 @@ export const auth = betterAuth({
   trustedOrigins: [
     "https://auth.mcinnes.design",
     "https://neto.mcinnes.design",
+    ...(process.env.VERCEL_ENV === "development" ||
+      process.env.NODE_ENV === "development"
+        ? [ "http://localhost:3000" ]
+        : []),
   ],
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -54,6 +58,10 @@ export const auth = betterAuth({
         : "warn",
   },
   plugins: [
+    oAuthProxy({ 
+      productionURL: "https://auth.mcinnes.design", 
+      secret: process.env.OAUTH_PROXY_SECRET, 
+    }), 
     genericOAuth({
       config: [
         {
@@ -105,9 +113,9 @@ export const auth = betterAuth({
             }
 
             return {
-              id: decoded.sub || decoded.user_id,
-              name: decoded.name || "Neto User",
-              email: decoded.email || `${decoded.sub}@neto.local`,
+              id: decoded.sub,
+              name: decoded.name,
+              email: decoded.email,
               image: undefined,
               emailVerified: decoded.email_verified ?? false,
               subject: decoded.sub,
