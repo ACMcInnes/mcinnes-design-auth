@@ -23,10 +23,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     "https://auth.mcinnes.design",
     "https://neto.mcinnes.design",
-    ...(process.env.VERCEL_ENV === "development" ||
-      process.env.NODE_ENV === "development"
-        ? [ "http://localhost:3000" ]
-        : []),
+    "http://localhost:3000"
   ],
   database: drizzleAdapter(db, {
     provider: "pg",
