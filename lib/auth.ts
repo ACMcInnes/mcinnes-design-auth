@@ -22,7 +22,7 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   trustedOrigins: [
     "https://auth.mcinnes.design",
-    "https://neto.mcinnes.design",
+    "https://commerce.mcinnes.design",
   ],
   database: drizzleAdapter(db, {
     provider: "pg",

@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://neto.mcinnes.design",
+            value: "https://commerce.mcinnes.design",
           },
           {
             key: "Access-Control-Allow-Credentials",

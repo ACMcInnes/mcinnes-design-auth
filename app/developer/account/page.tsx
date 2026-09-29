@@ -43,7 +43,7 @@ export default async function Account() {
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           <div className="max-w-4xl">
             <h1 className="mx-auto text-center mt-2 mb-8 max-w-xs sm:max-w-md md:max-w-xl lg:max-w-3xl text-balance text-4xl font-semibold text-gray-900 dark:text-gray-100 sm:text-5xl">
-              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-2 py-0.5 rounded wrap-break-word">
+              <strong className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-2 py-0.5 rounded wrap-break-word leading-6 box-decoration-clone">
                 {heading}
               </strong>{" "}
               Account
