@@ -60,19 +60,18 @@ export async function POST(request: NextRequest) {
 
       if (verificationKey === expectedVerification) {
         if (client_id === process.env.BETTER_AUTH_CLIENT_ID) {
+          /*
           // uninstall verified, lets just return here for now
           return new NextResponse(`Uninstall successful: ${store_id}`, {
             status: 200,
           });
+          */
 
-          // TODO: confirm uninstall request, POST deauth code to Neto Token endpoint
-
-          /*
           const params = new URLSearchParams();
 
-          params.append("client_id", `${CLIENT_ID}`);
-          params.append("client_secret", `${CLIENT_SECRET}`);
-          params.append("redirect_uri", `${callbackURL}`);
+          params.append("client_id", `${process.env.BETTER_AUTH_CLIENT_ID}`);
+          params.append("client_secret", `${process.env.BETTER_AUTH_CLIENT_SECRET}`);
+          params.append("redirect_uri", `https://auth.mcinnes.design/auth/callback/neto/uninstall`);
           params.append("grant_type", `authorization_code`);
           params.append("code", `${code}`);
 
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest) {
           // think code or verification key are encoded, need to figure out how to decode
 
           try {
-            const res = await fetch(`${netoAppURL}${tokenURL}`, {
+            const res = await fetch(`https://api.netodev.com/oauth/v2/token?version=2`, {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": "*",
@@ -103,10 +102,10 @@ export async function POST(request: NextRequest) {
               status: 200,
             });
           } catch (e) {
-            console.log(e);
+            console.warn(`## NETO DEAUTH TOKEN ERROR: ${e}}`)
             return NextResponse.json({ error: e }, { status: 500 });
           }
-            */
+
         } else {
           return new NextResponse(
             `Uninstall error: Uninstall Client does not match application Client, or wrong Neto environment used.`,
