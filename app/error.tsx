@@ -36,6 +36,7 @@ export default function Error({
           </button>
           <Link
             href="/auth/callback/neto/uninstall"
+            prefetch={false}
             className="text-sm/6 font-semibold text-white"
           >
             Log out
