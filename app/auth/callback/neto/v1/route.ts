@@ -239,6 +239,7 @@ export async function POST(request: NextRequest) {
           params.append("code", `${code}`);
 
           console.log(`running deauth request...`);
+          console.log(callbackURL)
 
           try {
             const res = await fetch(`${netoAppURL}${tokenURL}`, {
